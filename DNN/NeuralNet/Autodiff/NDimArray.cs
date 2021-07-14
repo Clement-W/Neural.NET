@@ -89,7 +89,7 @@ namespace NeuralNet.Autodiff
         }
 
 
-        
+
 
         public void FillWithValue(double value)
         {
@@ -100,7 +100,7 @@ namespace NeuralNet.Autodiff
         }
 
 
-        private int getIndexIn1DArray(int[] indexes)
+        private int getIndexInDataArray(int[] indexes)
         {
             if (indexes.Length == Shape.Length)
             {
@@ -122,11 +122,11 @@ namespace NeuralNet.Autodiff
         {
             get
             {
-                return _data[getIndexIn1DArray(indexes)];
+                return _data[getIndexInDataArray(indexes)];
             }
             set
             {
-                _data[getIndexIn1DArray(indexes)] = value;
+                _data[getIndexInDataArray(indexes)] = value;
             }
         }
 
@@ -150,21 +150,49 @@ namespace NeuralNet.Autodiff
         }
 
 
-        private bool IsOperationBroadcastable(){
-            return false;
+        //Two dimensions are compatible when they are equal, or one of them is 1
+        // https://numpy.org/doc/stable/user/basics.broadcasting.html
+        public static bool IsOperationBroadcastable(int[] shape1, int[] shape2)
+        {
+            shape1 = Enumerable.Reverse(shape1).ToArray();
+            shape2 = Enumerable.Reverse(shape2).ToArray();
+            int minShapeLength = (shape1.Length <= shape2.Length) ? shape1.Length : shape2.Length;
+            for(int i = minShapeLength-1; i>=0;i--){
+                if(shape1[i] != 1 && shape2[i] != 1 && shape1[i] != shape2[i]){
+                    return false;
+                }
+            }
+            return true;
         }
 
-        public static NDimArray operator +(NDimArray arr1, NDimArray arr2){
-            
-            if(arr1.Shape == arr2.Shape){
-                NDimArray res = new NDimArray(arr1.Shape);
-                for(int i =0;i<arr1.NbElements;i++){
-                    res[i] = arr1[i] + arr2[i];
-                }
-                return res;
+
+
+        private static NDimArray ApplyOperationBetweenNDimArray(Func<double,double,double> operation, NDimArray arr1, NDimArray arr2){
+            NDimArray res = new NDimArray(arr1.Shape);
+            for (int i = 0; i < arr1.NbElements; i++)
+            {
+                res[i] = operation(arr1[i],arr2[i]);
+            }
+            return res;
+        
+        }
+        public static NDimArray operator +(NDimArray arr1, NDimArray arr2)
+        {
+            Func<double,double,double> addition = (a,b) => a + b;
+
+            if (arr1.Shape.SequenceEqual(arr2.Shape))
+            {
+                return ApplyOperationBetweenNDimArray(addition,arr1,arr2);
             }
 
-            //else if(arr1.)
+            else if(IsOperationBroadcastable(arr1.Shape,arr2.Shape)){
+                int[] newShape = new int[]{};
+                //TODO:
+
+
+                
+
+            }
             return null;
         }
 

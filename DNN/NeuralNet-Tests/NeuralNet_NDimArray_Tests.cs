@@ -90,6 +90,38 @@ namespace NeuralNet.UnitTests
             Assert.Throws<InvalidOperationException>(() =>arr3.PrintAsMatrix());
         }
 
+        [Fact]
+        public void NDimArray_Test_Broadcastable()
+        {
+            NDimArray a = new NDimArray(new int[]{1});
+            NDimArray b = new NDimArray(new int[]{1,1});
+            NDimArray c = new NDimArray(new int[]{3,2});
+            NDimArray e = new NDimArray(new int[]{1,2});
+            NDimArray f = new NDimArray(new int[]{1,1,2});
+            NDimArray g = new NDimArray(new int[]{1,1,1,1,1,1});
+            NDimArray h = new NDimArray(new int[]{3,5});
+            Assert.True(NDimArray.IsOperationBroadcastable(a.Shape,b.Shape));
+            Assert.True(NDimArray.IsOperationBroadcastable(a.Shape,c.Shape));
+            Assert.True(NDimArray.IsOperationBroadcastable(c.Shape,e.Shape));
+            Assert.True(NDimArray.IsOperationBroadcastable(c.Shape,f.Shape));
+            Assert.True(NDimArray.IsOperationBroadcastable(e.Shape,f.Shape));
+            Assert.True(NDimArray.IsOperationBroadcastable(a.Shape,g.Shape));
+            Assert.False(NDimArray.IsOperationBroadcastable(c.Shape,h.Shape));
+            Assert.True(h.Shape.SequenceEqual(new int[] {3,5}));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Simple_Addition_Operation()
+        {
+            
+        }
+
+        [Fact]
+        public void NDimArray_Test_Broadcast_Addition_Operation()
+        {
+            
+        }
+
       
 
 
