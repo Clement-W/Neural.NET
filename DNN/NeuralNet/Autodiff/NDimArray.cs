@@ -174,8 +174,19 @@ namespace NeuralNet.Autodiff
                 res[i] = operation(arr1[i],arr2[i]);
             }
             return res;
-        
         }
+        
+        private static NDimArray ApplyOperationWithScalar(Func<double,double,double> operation, NDimArray arr, NDimArray scalarArr){
+            
+            NDimArray res = new NDimArray(arr.Shape);
+            for (int i = 0; i < arr.NbElements; i++)
+            {
+                res[i] = operation(arr[i],scalarArr[0]);
+            }
+            return res;
+        }
+        
+        
         public static NDimArray operator +(NDimArray arr1, NDimArray arr2)
         {
             Func<double,double,double> addition = (a,b) => a + b;
@@ -183,6 +194,13 @@ namespace NeuralNet.Autodiff
             if (arr1.Shape.SequenceEqual(arr2.Shape))
             {
                 return ApplyOperationBetweenNDimArray(addition,arr1,arr2);
+            }
+            
+            else if(len(arr1.Shape)==1 && arr1.Shape[0]==1){
+                return ApplyOperationWithScalar(addition,arr2,arr1)
+            }
+            else if(len(arr2.Shape)==1 && arr2.Shape[0]==1){
+                return ApplyOperationWithScalar(addition,arr1,arr2)
             }
 
             else if(IsOperationBroadcastable(arr1.Shape,arr2.Shape)){
