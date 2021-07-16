@@ -6,7 +6,7 @@ namespace NeuralNet.Autodiff
     public class NDimArray
     {
 
-        private double[] _data;
+        public double[] Data{get;private set;}
 
         // would be [5,3] for a (5x3) 2-darray 
         private int[] _shape;
@@ -57,7 +57,7 @@ namespace NeuralNet.Autodiff
         public NDimArray(params int[] shape)
         {
             Shape = shape;
-            _data = new double[NbElements];
+            Data = new double[NbElements];
         }
 
         public NDimArray(int[] shape, params double[] newData)
@@ -65,7 +65,7 @@ namespace NeuralNet.Autodiff
             Shape = shape;
             if (NbElements == newData.Length)
             {
-                _data = newData;
+                Data = newData;
             }
             else
             {
@@ -95,7 +95,7 @@ namespace NeuralNet.Autodiff
         {
             for (int i = 0; i < NbElements; i++)
             {
-                _data[i] = value;
+                Data[i] = value;
             }
         }
 
@@ -122,11 +122,11 @@ namespace NeuralNet.Autodiff
         {
             get
             {
-                return _data[getIndexInDataArray(indexes)];
+                return Data[getIndexInDataArray(indexes)];
             }
             set
             {
-                _data[getIndexInDataArray(indexes)] = value;
+                Data[getIndexInDataArray(indexes)] = value;
             }
         }
 
@@ -171,7 +171,7 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr1.Shape);
             for (int i = 0; i < arr1.NbElements; i++)
             {
-                res[i] = operation(arr1[i],arr2[i]);
+                res.Data[i] = operation(arr1.Data[i],arr2.Data[i]);
             }
             return res;
         }
@@ -181,7 +181,7 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr.Shape);
             for (int i = 0; i < arr.NbElements; i++)
             {
-                res[i] = operation(arr[i],scalarArr[0]);
+                res.Data[i] = operation(arr.Data[i],scalarArr.Data[0]);
             }
             return res;
         }
@@ -196,20 +196,17 @@ namespace NeuralNet.Autodiff
                 return ApplyOperationBetweenNDimArray(addition,arr1,arr2);
             }
             
-            else if(len(arr1.Shape)==1 && arr1.Shape[0]==1){
-                return ApplyOperationWithScalar(addition,arr2,arr1)
+            else if(arr1.Shape.Length==1 && arr1.Shape[0]==1){
+                return ApplyOperationWithScalar(addition,arr2,arr1);
             }
-            else if(len(arr2.Shape)==1 && arr2.Shape[0]==1){
-                return ApplyOperationWithScalar(addition,arr1,arr2)
+            else if(arr2.Shape.Length==1 && arr2.Shape[0]==1){
+                return ApplyOperationWithScalar(addition,arr1,arr2);
             }
 
             else if(IsOperationBroadcastable(arr1.Shape,arr2.Shape)){
                 int[] newShape = new int[]{};
                 //TODO:
-
-
                 
-
             }
             return null;
         }
