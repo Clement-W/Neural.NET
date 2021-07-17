@@ -32,7 +32,8 @@ namespace NeuralNet.Autodiff
                 return _shape;
             }
             set
-            {
+            {   
+                // If no shape has been set, or the new shape is compatible with the old one
                 if (NbElements == 0 || NbElements == value.Aggregate(1, (a, b) => a * b))
                 {
                     _shape = value;
@@ -58,7 +59,12 @@ namespace NeuralNet.Autodiff
                 }
                 else
                 {
-                    return Shape.Aggregate(1, (a, b) => a * b);
+                    if(Data == null){
+                        // If the data array is null, return the future data length by multitplying every shapes
+                        return Shape.Aggregate(1, (a, b) => a * b);
+                    }else{
+                        return Data.Length;
+                    }      
                 }
             }
         }
@@ -81,6 +87,12 @@ namespace NeuralNet.Autodiff
                 throw new ArgumentException("The given shape, and array are not compatible.");
             }
 
+        }
+
+        public NDimArray(NDimArray arr)
+        {
+            Shape = arr.Shape;
+            Data = arr.Data;
         }
 
 
@@ -159,6 +171,57 @@ namespace NeuralNet.Autodiff
         }
 
 
+        public static NDimArray Zeros_like(NDimArray arr){
+            return new NDimArray(arr.Shape);
+        }
+
+        public static NDimArray Ones_like(NDimArray arr){
+            NDimArray res = new NDimArray(arr.Shape);
+            res.FillWithValue(1);
+            return res;
+        }
+
+        public double Sum(){
+            // Use multiple cores of the CPU for faster computation
+            return this.Data.AsParallel().Sum();
+        }
+
+
+
+        public static NDimArray Tanh(NDimArray arr){
+            NDimArray res = new NDimArray(arr.Shape);
+            for(int i =0;i<arr.NbElements;i++){
+                res.Data[i] = Math.Tanh(arr.Data[i]);
+            }
+            return res;
+        }
+
+        public static NDimArray Exp(NDimArray arr){
+            NDimArray res = new NDimArray(arr.Shape);
+            for(int i =0;i<arr.NbElements;i++){
+                res.Data[i] = Math.Exp(arr.Data[i]);
+            }
+            return res;
+        }
+
+        public NDimArray Transpose(){
+            //TODO: support n-dim transpose, not only 2dim
+            if(Ndim==1){
+                return new NDimArray(this);
+            }else if(Ndim==2){
+                NDimArray res = new NDimArray(new int[]{Shape[1],Shape[0]});
+                for(int newCol =0;newCol<res.Shape[0];newCol++){
+                    for(int newRow =0;newRow<res.Shape[1];newRow++){
+                        res[newCol,newRow] = this[newRow,newCol];
+                    }
+                }
+                return res;
+            }else{
+                throw new NotImplementedException("Can't transpose a ndimarray with n > 2 (TODO)");
+            }
+        }
+
+
         //Two dimensions are compatible when they are equal, or one of them is 1
         // https://numpy.org/doc/stable/user/basics.broadcasting.html
         public static bool IsOperationBroadcastable(int[] shape1, int[] shape2)
@@ -208,7 +271,8 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
-        public static NDimArray ApplyOperation(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2){
+        public static NDimArray ApplyOperation(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
+        {
             if (arr1.Shape.SequenceEqual(arr2.Shape))
             {
                 return ApplyOperationBetweenNDimArray(operation, arr1, arr2);
@@ -234,7 +298,7 @@ namespace NeuralNet.Autodiff
         {
             Func<double, double, double> addition = (a, b) => a + b;
 
-            return ApplyOperation(addition,arr1,arr2);
+            return ApplyOperation(addition, arr1, arr2);
         }
 
 
@@ -242,28 +306,58 @@ namespace NeuralNet.Autodiff
         {
             Func<double, double, double> substract = (a, b) => a - b;
 
-            return ApplyOperation(substract,arr1,arr2);
+            return ApplyOperation(substract, arr1, arr2);
         }
 
         public static NDimArray operator *(NDimArray arr1, NDimArray arr2)
         {
             Func<double, double, double> mul = (a, b) => a * b;
 
-            return ApplyOperation(mul,arr1,arr2);
+            return ApplyOperation(mul, arr1, arr2);
         }
 
         public static NDimArray operator /(NDimArray arr1, NDimArray arr2)
         {
             Func<double, double, double> truediv = (a, b) => a / b;
 
-            return ApplyOperation(truediv,arr1,arr2);
+            return ApplyOperation(truediv, arr1, arr2);
         }
 
-
-
-        
-
-
+        public static NDimArray Matmul(NDimArray arr1, NDimArray arr2)
+        {
+            //TODO:support ndim matmul (broadcasting)
+            if (arr1.Ndim == 2 && arr2.Ndim == 2)
+            {
+                if (arr1.Shape[1] == arr2.Shape[0])
+                {
+                    NDimArray res = new NDimArray(new int[] { arr1.Shape[0], arr2.Shape[1] });
+                    double val;
+                    int commonShapeIndex;
+                    int commonShape = arr1.Shape[1];
+                    for (int col = 0; col < res.Shape[0]; col++) 
+                    {
+                        for (int row = 0; row < res.Shape[1]; row++)
+                        {
+                            commonShapeIndex = 0;
+                            val = 0;
+                            while (commonShapeIndex < commonShape)
+                            { 
+                                val += arr1[col, commonShapeIndex] * arr2[commonShapeIndex, row];
+                                commonShapeIndex++;
+                            }
+                            res[col, row] = val;
+                        }
+                    }
+                    return res;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Can't do matrix multiplication between shapes : (" + string.Join(", " ,arr1.Shape) + ") and (" + string.Join(", ",arr2.Shape) + ").");
+                }
+            }else{
+                throw new NotImplementedException("Can't do matrix multiplication with other than 2d array, array1 is " + arr1.Ndim + " and array2 is " + arr2.Ndim  + ".");
+            }
+        }
 
     }
 }
