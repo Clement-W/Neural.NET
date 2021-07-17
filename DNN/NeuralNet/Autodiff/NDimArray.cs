@@ -6,7 +6,7 @@ namespace NeuralNet.Autodiff
     public class NDimArray
     {
 
-        public double[] Data{get;private set;}
+        public double[] Data { get; private set; }
 
         // would be [5,3] for a (5x3) 2-darray 
         private int[] _shape;
@@ -14,6 +14,15 @@ namespace NeuralNet.Autodiff
         // list of indexes used to access the one dimensional array that
         // represents the n dimensional array
         public int[] StepIndexes { get; private set; }
+
+        public int Ndim
+        {
+            get
+            {
+                return Shape.Length;
+            }
+            private set { }
+        }
 
 
         public int[] Shape
@@ -77,10 +86,10 @@ namespace NeuralNet.Autodiff
 
         private void InitStepIndexes()
         {
-            int[] steps = new int[Shape.Length];
+            int[] steps = new int[this.Ndim];
 
             int step = 1;
-            for (int i = Shape.Length - 1; i >= 0; i--)
+            for (int i = Ndim - 1; i >= 0; i--)
             {
                 steps[i] = step;
                 step *= Shape[i];
@@ -102,10 +111,10 @@ namespace NeuralNet.Autodiff
 
         private int getIndexInDataArray(int[] indexes)
         {
-            if (indexes.Length == Shape.Length)
+            if (indexes.Length == Ndim)
             {
                 int index = 0;
-                for (int i = 0; i < Shape.Length; i++)
+                for (int i = 0; i < Ndim; i++)
                 {
                     index += indexes[i] * StepIndexes[i];
                 }
@@ -113,7 +122,7 @@ namespace NeuralNet.Autodiff
             }
             else
             {
-                throw new ArgumentException("The number of indexes given (" + indexes.Length + ")" + " doesn't fit the array shape (" + Shape.Length + ").");
+                throw new ArgumentException("The number of indexes given (" + indexes.Length + ")" + " doesn't fit the array shape (" + Ndim + ").");
             }
         }
 
@@ -132,7 +141,7 @@ namespace NeuralNet.Autodiff
 
         public void PrintAsMatrix()
         {
-            if (Shape.Length == 2)
+            if (Ndim == 2)
             {
                 for (int i = 0; i < Shape[0]; i++)
                 {
@@ -157,8 +166,10 @@ namespace NeuralNet.Autodiff
             shape1 = Enumerable.Reverse(shape1).ToArray();
             shape2 = Enumerable.Reverse(shape2).ToArray();
             int minShapeLength = (shape1.Length <= shape2.Length) ? shape1.Length : shape2.Length;
-            for(int i = minShapeLength-1; i>=0;i--){
-                if(shape1[i] != 1 && shape2[i] != 1 && shape1[i] != shape2[i]){
+            for (int i = minShapeLength - 1; i >= 0; i--)
+            {
+                if (shape1[i] != 1 && shape2[i] != 1 && shape1[i] != shape2[i])
+                {
                     return false;
                 }
             }
@@ -167,50 +178,90 @@ namespace NeuralNet.Autodiff
 
 
 
-        private static NDimArray ApplyOperationBetweenNDimArray(Func<double,double,double> operation, NDimArray arr1, NDimArray arr2){
+        private static NDimArray ApplyOperationBetweenNDimArray(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
+        {
             NDimArray res = new NDimArray(arr1.Shape);
             for (int i = 0; i < arr1.NbElements; i++)
             {
-                res.Data[i] = operation(arr1.Data[i],arr2.Data[i]);
+                res.Data[i] = operation(arr1.Data[i], arr2.Data[i]);
             }
             return res;
         }
-        
-        private static NDimArray ApplyOperationWithScalar(Func<double,double,double> operation, NDimArray arr, NDimArray scalarArr){
-            
-            NDimArray res = new NDimArray(arr.Shape);
-            for (int i = 0; i < arr.NbElements; i++)
-            {
-                res.Data[i] = operation(arr.Data[i],scalarArr.Data[0]);
-            }
-            return res;
-        }
-        
-        
-        public static NDimArray operator +(NDimArray arr1, NDimArray arr2)
-        {
-            Func<double,double,double> addition = (a,b) => a + b;
 
+        private static NDimArray ApplyOperationWithScalar(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
+        {
+            // Know which one is the scalar or the array
+            NDimArray array = (arr1.Ndim == 1 && arr1.Shape[0] == 1) ? arr2 : arr1;
+
+            NDimArray res = new NDimArray(array.Shape);
+            for (int i = 0; i < array.NbElements; i++)
+            {
+                if (array == arr1)
+                {
+                    res.Data[i] = operation(arr1.Data[i], arr2.Data[0]);
+                }
+                else
+                {
+                    res.Data[i] = operation(arr1.Data[0], arr2.Data[i]);
+                }
+            }
+            return res;
+        }
+
+        public static NDimArray ApplyOperation(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2){
             if (arr1.Shape.SequenceEqual(arr2.Shape))
             {
-                return ApplyOperationBetweenNDimArray(addition,arr1,arr2);
-            }
-            
-            else if(arr1.Shape.Length==1 && arr1.Shape[0]==1){
-                return ApplyOperationWithScalar(addition,arr2,arr1);
-            }
-            else if(arr2.Shape.Length==1 && arr2.Shape[0]==1){
-                return ApplyOperationWithScalar(addition,arr1,arr2);
+                return ApplyOperationBetweenNDimArray(operation, arr1, arr2);
             }
 
-            else if(IsOperationBroadcastable(arr1.Shape,arr2.Shape)){
-                int[] newShape = new int[]{};
-                //TODO:
-                
+            else if ((arr1.Ndim == 1 && arr1.Shape[0] == 1) || (arr2.Ndim == 1 && arr2.Shape[0] == 1))
+            {
+                return ApplyOperationWithScalar(operation, arr1, arr2);
             }
-            return null;
+            else if (IsOperationBroadcastable(arr1.Shape, arr2.Shape))
+            {
+                //TODO: implement broadcasting
+                throw new NotImplementedException("Broadcast operation is not supported yet.");
+            }
+            else
+            {
+                throw new InvalidOperationException("Can't apply this operation between those ndimarray, dimensions are " + arr1.Shape + " and " + arr2.Shape + " which is incompatible.");
+            }
         }
 
+
+        public static NDimArray operator +(NDimArray arr1, NDimArray arr2)
+        {
+            Func<double, double, double> addition = (a, b) => a + b;
+
+            return ApplyOperation(addition,arr1,arr2);
+        }
+
+
+        public static NDimArray operator -(NDimArray arr1, NDimArray arr2)
+        {
+            Func<double, double, double> substract = (a, b) => a - b;
+
+            return ApplyOperation(substract,arr1,arr2);
+        }
+
+        public static NDimArray operator *(NDimArray arr1, NDimArray arr2)
+        {
+            Func<double, double, double> mul = (a, b) => a * b;
+
+            return ApplyOperation(mul,arr1,arr2);
+        }
+
+        public static NDimArray operator /(NDimArray arr1, NDimArray arr2)
+        {
+            Func<double, double, double> truediv = (a, b) => a / b;
+
+            return ApplyOperation(truediv,arr1,arr2);
+        }
+
+
+
+        
 
 
 

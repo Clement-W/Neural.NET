@@ -138,6 +138,20 @@ namespace NeuralNet.UnitTests
         }
 
         [Fact]
+        public void NDimArray_Test_Addition_Incompatible()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 5, 4, 3 });
+            NDimArray a3 = new NDimArray(new int[] { 3, 2 });
+            a2.FillWithValue(1);
+
+            Assert.Throws<InvalidOperationException>(() => a1 + a2);
+            Assert.Throws<NotImplementedException>(() => a1 + a3);
+
+        }
+
+        /*
+        [Fact]
         public void NDimArray_Test_Broadcast_Addition_Operation()
         {
             NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 0, 0, 0, 10, 10, 10, 20, 20, 20, 30, 30, 30);
@@ -151,6 +165,135 @@ namespace NeuralNet.UnitTests
             Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
             Assert.True(a4.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
             Assert.True(a5.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
+        }*/
+
+
+        [Fact]
+        public void NDimArray_Test_Substract_Between_Arrays_Same_Shape()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 2, 3, 2 });
+            a2.FillWithValue(1);
+
+            NDimArray a = a1 - a2;
+            Assert.True(a.Shape.SequenceEqual(new int[] { 2, 3, 2 }));
+            Assert.True(a.Data.SequenceEqual(new double[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }));
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Substract_Array_With_Scalar()
+        {
+            arr1.FillWithValue(1);
+            arr3.FillWithValue(2);
+            NDimArray a = arr1 - arr3;
+            NDimArray b = arr3 - arr1;
+            Assert.True(a.Shape.SequenceEqual(new int[] { 3, 4 }));
+            Assert.True(a.Data.SequenceEqual(new double[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }));
+            Assert.True(arr1.Data.SequenceEqual(new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }));
+            Assert.True(arr3.Data.SequenceEqual(new double[] { 2 }));
+            
+            Assert.True(b.Shape.SequenceEqual(new int[] { 3, 4 }));
+            Assert.True(b.Data.SequenceEqual(new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Substract_Incompatible()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 5, 4, 3 });
+            NDimArray a3 = new NDimArray(new int[] { 3, 2 });
+            a2.FillWithValue(1);
+
+            Assert.Throws<InvalidOperationException>(() => a1 - a2);
+            Assert.Throws<NotImplementedException>(() => a1 - a3);
+
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Mul_Between_Arrays_Same_Shape()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 2, 3, 2 });
+            a2.FillWithValue(2);
+
+            NDimArray a = a1 * a2;
+            Assert.True(a.Shape.SequenceEqual(new int[] { 2, 3, 2 }));
+            Assert.True(a.Data.SequenceEqual(new double[] { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 }));
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Mul_Array_With_Scalar()
+        {
+            arr1.FillWithValue(3);
+            arr3.FillWithValue(2);
+            NDimArray a = arr1 * arr3;
+            NDimArray b = arr3 * arr1;
+            Assert.True(a.Shape.SequenceEqual(new int[] { 3, 4 }));
+            Assert.True(a.Data.SequenceEqual(new double[] { 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 }));
+            
+            Assert.True(b.Shape.SequenceEqual(new int[] { 3, 4 }));
+            Assert.True(b.Data.SequenceEqual(a.Data));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Mul_Incompatible()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 5, 4, 3 });
+            NDimArray a3 = new NDimArray(new int[] { 3, 2 });
+            a2.FillWithValue(1);
+
+            Assert.Throws<InvalidOperationException>(() => a1 * a2);
+            Assert.Throws<NotImplementedException>(() => a1 * a3);
+
+        }
+
+
+
+
+        [Fact]
+        public void NDimArray_Test_Truediv_Between_Arrays_Same_Shape()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 2, 3, 2 });
+            a2.FillWithValue(2);
+
+            NDimArray a = a1 / a2;
+            Assert.True(a.Shape.SequenceEqual(new int[] { 2, 3, 2 }));
+            Assert.True(a.Data.SequenceEqual(new double[] { 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6 }));
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Truediv_Array_With_Scalar()
+        {
+            arr1.FillWithValue(3);
+            arr3.FillWithValue(6);
+            arr1[0,1]=6;
+            NDimArray a = arr1 / arr3;
+            NDimArray b = arr3 / arr1;
+            Assert.True(a.Shape.SequenceEqual(new int[] { 3, 4 }));
+            Console.WriteLine("[{0}]",string.Join(", ",a.Data));
+            Assert.True(a.Data.SequenceEqual(new double[] { 0.5, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 }));
+            
+            Assert.True(b.Shape.SequenceEqual(new int[] { 3, 4 }));
+            Assert.True(b.Data.SequenceEqual(new double[] { 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 }));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Truediv_Incompatible()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 5, 4, 3 });
+            NDimArray a3 = new NDimArray(new int[] { 3, 2 });
+            a2.FillWithValue(1);
+
+            Assert.Throws<InvalidOperationException>(() => a1 / a2);
+            Assert.Throws<NotImplementedException>(() => a1 / a3);
+
         }
 
 
