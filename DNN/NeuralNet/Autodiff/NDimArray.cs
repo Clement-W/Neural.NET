@@ -21,7 +21,6 @@ namespace NeuralNet.Autodiff
             {
                 return Shape.Length;
             }
-            private set { }
         }
 
 
@@ -95,6 +94,16 @@ namespace NeuralNet.Autodiff
             Data = arr.Data;
         }
 
+        public static NDimArray CreateScalar(double val)
+        {
+            return new NDimArray(new int[] { 1 }, val);
+        }
+
+        public override string ToString()
+        {
+            return $"[{string.Join(", ", Data)}]";
+        }
+
 
         private void InitStepIndexes()
         {
@@ -120,8 +129,8 @@ namespace NeuralNet.Autodiff
             }
         }
 
-
-        private int getIndexInDataArray(int[] indexes)
+        // Convert a list of indexes like [2,3] to the corresponding index in the one-dim array that contains the data
+        private int ConvertNDIndexTo1DIndex(int[] indexes)
         {
             if (indexes.Length == Ndim)
             {
@@ -138,16 +147,19 @@ namespace NeuralNet.Autodiff
             }
         }
 
+  
+
+
 
         public double this[params int[] indexes]
         {
             get
             {
-                return Data[getIndexInDataArray(indexes)];
+                return Data[ConvertNDIndexTo1DIndex(indexes)];
             }
             set
             {
-                Data[getIndexInDataArray(indexes)] = value;
+                Data[ConvertNDIndexTo1DIndex(indexes)] = value;
             }
         }
 
@@ -182,8 +194,7 @@ namespace NeuralNet.Autodiff
         }
 
         public double Sum(){
-            // Use multiple cores of the CPU for faster computation
-            return this.Data.AsParallel().Sum();
+            return this.Data.Sum();
         }
 
 
@@ -273,11 +284,13 @@ namespace NeuralNet.Autodiff
 
         public static NDimArray ApplyOperation(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
         {
+            // If the shapes are equals
             if (arr1.Shape.SequenceEqual(arr2.Shape))
             {
                 return ApplyOperationBetweenNDimArray(operation, arr1, arr2);
             }
 
+            // If one of the array is a scalar
             else if ((arr1.Ndim == 1 && arr1.Shape[0] == 1) || (arr2.Ndim == 1 && arr2.Shape[0] == 1))
             {
                 return ApplyOperationWithScalar(operation, arr1, arr2);
