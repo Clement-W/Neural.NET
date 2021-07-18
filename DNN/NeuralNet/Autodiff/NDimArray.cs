@@ -31,7 +31,7 @@ namespace NeuralNet.Autodiff
                 return _shape;
             }
             set
-            {   
+            {
                 // If no shape has been set, or the new shape is compatible with the old one
                 if (NbElements == 0 || NbElements == value.Aggregate(1, (a, b) => a * b))
                 {
@@ -58,12 +58,15 @@ namespace NeuralNet.Autodiff
                 }
                 else
                 {
-                    if(Data == null){
+                    if (Data == null)
+                    {
                         // If the data array is null, return the future data length by multitplying every shapes
                         return Shape.Aggregate(1, (a, b) => a * b);
-                    }else{
+                    }
+                    else
+                    {
                         return Data.Length;
-                    }      
+                    }
                 }
             }
         }
@@ -147,7 +150,7 @@ namespace NeuralNet.Autodiff
             }
         }
 
-  
+
 
 
 
@@ -183,51 +186,66 @@ namespace NeuralNet.Autodiff
         }
 
 
-        public static NDimArray Zeros_like(NDimArray arr){
+        public static NDimArray Zeros_like(NDimArray arr)
+        {
             return new NDimArray(arr.Shape);
         }
 
-        public static NDimArray Ones_like(NDimArray arr){
+        public static NDimArray Ones_like(NDimArray arr)
+        {
             NDimArray res = new NDimArray(arr.Shape);
             res.FillWithValue(1);
             return res;
         }
 
-        public double Sum(){
+        public double Sum()
+        {
             return this.Data.Sum();
         }
 
 
 
-        public static NDimArray Tanh(NDimArray arr){
+        public static NDimArray Tanh(NDimArray arr)
+        {
             NDimArray res = new NDimArray(arr.Shape);
-            for(int i =0;i<arr.NbElements;i++){
+            for (int i = 0; i < arr.NbElements; i++)
+            {
                 res.Data[i] = Math.Tanh(arr.Data[i]);
             }
             return res;
         }
 
-        public static NDimArray Exp(NDimArray arr){
+        public static NDimArray Exp(NDimArray arr)
+        {
             NDimArray res = new NDimArray(arr.Shape);
-            for(int i =0;i<arr.NbElements;i++){
+            for (int i = 0; i < arr.NbElements; i++)
+            {
                 res.Data[i] = Math.Exp(arr.Data[i]);
             }
             return res;
         }
 
-        public NDimArray Transpose(){
+        public NDimArray Transpose()
+        {
             //TODO: support n-dim transpose, not only 2dim
-            if(Ndim==1){
+            if (Ndim == 1)
+            {
                 return new NDimArray(this);
-            }else if(Ndim==2){
-                NDimArray res = new NDimArray(new int[]{Shape[1],Shape[0]});
-                for(int newCol =0;newCol<res.Shape[0];newCol++){
-                    for(int newRow =0;newRow<res.Shape[1];newRow++){
-                        res[newCol,newRow] = this[newRow,newCol];
+            }
+            else if (Ndim == 2)
+            {
+                NDimArray res = new NDimArray(new int[] { Shape[1], Shape[0] });
+                for (int newCol = 0; newCol < res.Shape[0]; newCol++)
+                {
+                    for (int newRow = 0; newRow < res.Shape[1]; newRow++)
+                    {
+                        res[newCol, newRow] = this[newRow, newCol];
                     }
                 }
                 return res;
-            }else{
+            }
+            else
+            {
                 throw new NotImplementedException("Can't transpose a ndimarray with n > 2 (TODO)");
             }
         }
@@ -283,34 +301,43 @@ namespace NeuralNet.Autodiff
         }
 
 
-        public static int[] GetBroadcastedShapes(int[] shapeArr1,int[] shapeArr2)
+        // Warning : Messy code here
+        public static int[] GetBroadcastedShapes(int[] shapeArr1, int[] shapeArr2)
         {
+
+            // Copy arrays to avoid reference issues 
+            shapeArr1 = (int[])shapeArr1.Clone();
+            shapeArr2 = (int[])shapeArr2.Clone();
             int maxShapeLength = (shapeArr1.Length >= shapeArr2.Length) ? shapeArr1.Length : shapeArr2.Length;
 
             int[] shapeRes = new int[maxShapeLength];
 
-            int arr1Index = shapeArr1.Length-1;
-            int arr2Index = shapeArr2.Length-1;
+            int arr1Index = shapeArr1.Length - 1;
+            int arr2Index = shapeArr2.Length - 1;
 
-            int cptIndex = maxShapeLength-1;
-            while(cptIndex >= 0)
+            int cptIndex = maxShapeLength - 1;
+            while (cptIndex >= 0)
             {
                 shapeRes[cptIndex] = (shapeArr1[arr1Index] >= shapeArr2[arr2Index]) ? shapeArr1[arr1Index] : shapeArr2[arr2Index];
 
                 // decrement the indexes if possible
-                if (arr1Index > 0) {
+                if (arr1Index > 0)
+                {
                     arr1Index--;
                 }
                 else
                 {
-                    shapeArr1[arr1Index] = 1; // set this dim to 1, so the dim of the other array will always be >= 
+                    // set this dim to 1, so the dim of the other array will always be >= to it
+                    shapeArr1[arr1Index] = 1;
                 }
 
-                if (arr2Index > 0) {
+                if (arr2Index > 0)
+                {
                     arr2Index--;
                 }
                 else
                 {
+                    // set this dim to 1, so the dim of the other array will always be >= to it
                     shapeArr2[arr2Index] = 1;
                 }
 
@@ -318,9 +345,10 @@ namespace NeuralNet.Autodiff
             }
 
             return shapeRes;
-            
+
         }
 
+        // Warning : Messy code here
         public static NDimArray Extend2DArrayByShape(NDimArray currentArray, int[] newShape)
         {
             if (currentArray.Shape.SequenceEqual(newShape))
@@ -330,19 +358,19 @@ namespace NeuralNet.Autodiff
 
             NDimArray res = new NDimArray(newShape);
             // Case where the array as only one dimension (multiple columns and one line)
-            if (currentArray.Ndim == 1 || (currentArray.Ndim == 2 && currentArray.Shape[0]==1))
+            if (currentArray.Ndim == 1 || (currentArray.Ndim == 2 && currentArray.Shape[0] == 1))
             {
                 int nbRowsToAdd = newShape[0];
-                for(int i = 0; i < nbRowsToAdd; i++)
+                for (int i = 0; i < nbRowsToAdd; i++)
                 {
                     // The number of columns is contained in shape[1] if there is two dimensions, and contained in shape[0] if there is one dimension
-                    for(int j = 0; j < ((currentArray.Ndim == 2) ? currentArray.Shape[1] : currentArray.Shape[0]); j++)
+                    for (int j = 0; j < ((currentArray.Ndim == 2) ? currentArray.Shape[1] : currentArray.Shape[0]); j++)
                     {
                         if (currentArray.Ndim == 1)
                         {
                             res[i, j] = currentArray[j];
                         }
-                        else 
+                        else
                         {
                             res[i, j] = currentArray[0, j];
                         }
@@ -369,6 +397,7 @@ namespace NeuralNet.Autodiff
         {
 
             int[] shapeRes = GetBroadcastedShapes(arr1.Shape, arr2.Shape);
+
             NDimArray newArr1 = Extend2DArrayByShape(arr1, shapeRes); //return an extended version of this array if needed
             NDimArray newArr2 = Extend2DArrayByShape(arr2, shapeRes);
 
@@ -378,7 +407,7 @@ namespace NeuralNet.Autodiff
         public static NDimArray ApplyOperation(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
         {
             // If the shapes are equals
-           
+
             if (arr1.Shape.SequenceEqual(arr2.Shape))
             {
                 return ApplyOperationBetweenNDimArray(operation, arr1, arr2);
@@ -391,9 +420,11 @@ namespace NeuralNet.Autodiff
             }
             else if (IsOperationBroadcastable(arr1.Shape, arr2.Shape))
             {
+
                 //TODO: implement NDIM broadcasting, only 2D broadcasting is supported yet
-                if(arr1.Shape.Length <=2 && arr2.Shape.Length <= 2)
+                if (arr1.Shape.Length <= 2 && arr2.Shape.Length <= 2)
                 {
+
                     return ApplyBroadcastOperationBetween2DArrays(operation, arr1, arr2);
                 }
                 else
@@ -448,14 +479,14 @@ namespace NeuralNet.Autodiff
                     double val;
                     int commonShapeIndex;
                     int commonShape = arr1.Shape[1];
-                    for (int col = 0; col < res.Shape[0]; col++) 
+                    for (int col = 0; col < res.Shape[0]; col++)
                     {
                         for (int row = 0; row < res.Shape[1]; row++)
                         {
                             commonShapeIndex = 0;
                             val = 0;
                             while (commonShapeIndex < commonShape)
-                            { 
+                            {
                                 val += arr1[col, commonShapeIndex] * arr2[commonShapeIndex, row];
                                 commonShapeIndex++;
                             }
@@ -466,10 +497,12 @@ namespace NeuralNet.Autodiff
                 }
                 else
                 {
-                    throw new InvalidOperationException("Can't do matrix multiplication between shapes : (" + string.Join(", " ,arr1.Shape) + ") and (" + string.Join(", ",arr2.Shape) + ").");
+                    throw new InvalidOperationException("Can't do matrix multiplication between shapes : (" + string.Join(", ", arr1.Shape) + ") and (" + string.Join(", ", arr2.Shape) + ").");
                 }
-            }else{
-                throw new NotImplementedException("Can't do matrix multiplication with other than 2d array, array1 is " + arr1.Ndim + " and array2 is " + arr2.Ndim  + ".");
+            }
+            else
+            {
+                throw new NotImplementedException("Can't do matrix multiplication with other than 2d array, array1 is " + arr1.Ndim + " and array2 is " + arr2.Ndim + ".");
             }
         }
 

@@ -34,7 +34,7 @@ namespace NeuralNet.UnitTests
             Assert.True(arr4.Shape.SequenceEqual(new int[] { 1 }));
             NDimArray a = new NDimArray(arr2);
             Assert.True(a.Shape.SequenceEqual(new int[] { 2, 3, 2 }));
-            
+
         }
 
         [Fact]
@@ -164,7 +164,6 @@ namespace NeuralNet.UnitTests
 
         }
 
-        /*
         [Fact]
         public void NDimArray_Test_Broadcast2D_Addition_Operation()
         {
@@ -177,9 +176,9 @@ namespace NeuralNet.UnitTests
             Assert.True(a2.Shape.SequenceEqual(new int[] { 3 }));
             Assert.True(a3.Shape.SequenceEqual(new int[] { 1, 3 }));
 
-
             NDimArray a5 = a1 + a2;
             NDimArray a6 = a1 + a3;
+
             NDimArray a7 = a1 + a4;
             NDimArray a8 = a3 + a4;
             NDimArray a9 = a2 + a4;
@@ -190,13 +189,13 @@ namespace NeuralNet.UnitTests
             Assert.True(a8.Shape.SequenceEqual(new int[] { 4, 3 }));
             Assert.True(a9.Shape.SequenceEqual(new int[] { 4, 3 }));
 
-            Assert.True(a4.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
             Assert.True(a5.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
             Assert.True(a6.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
-            Assert.True(a7.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
+            Assert.True(a7.Data.SequenceEqual(new double[] { 0, 0, 0, 20, 20, 20, 40, 40, 40, 60, 60, 60 }));
             Assert.True(a8.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
-            Assert.True(a8.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
-        }*/
+            Assert.True(a9.Data.SequenceEqual(new double[] { 0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 31, 32 }));
+
+        }
 
 
         [Fact]
@@ -238,6 +237,38 @@ namespace NeuralNet.UnitTests
 
             Assert.Throws<InvalidOperationException>(() => a1 - a2);
             Assert.Throws<NotImplementedException>(() => a1 - a3);
+
+        }
+
+        [Fact]
+        public void NDimArray_Test_Broadcast2D_Substract_Operation()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 0, 0, 0, 10, 10, 10, 20, 20, 20, 30, 30, 30);
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 0, 1, 2);
+            NDimArray a3 = new NDimArray(new int[] { 1, 3 }, 0, 1, 2);
+            NDimArray a4 = new NDimArray(new int[] { 4, 1 }, 0, 10, 20, 30);
+
+            Assert.True(a1.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a2.Shape.SequenceEqual(new int[] { 3 }));
+            Assert.True(a3.Shape.SequenceEqual(new int[] { 1, 3 }));
+
+            NDimArray a5 = a1 - a2;
+            NDimArray a6 = a1 - a3;
+            NDimArray a7 = a1 - a4;
+            NDimArray a8 = a4 - a3;
+            NDimArray a9 = a4 - a2;
+
+            Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a6.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a7.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a8.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a9.Shape.SequenceEqual(new int[] { 4, 3 }));
+
+            Assert.True(a5.Data.SequenceEqual(new double[] { 0, -1, -2, 10, 9, 8, 20, 19, 18, 30, 29, 28 }));
+            Assert.True(a6.Data.SequenceEqual(new double[] { 0, -1, -2, 10, 9, 8, 20, 19, 18, 30, 29, 28 }));
+            Assert.True(a7.Data.SequenceEqual(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
+            Assert.True(a8.Data.SequenceEqual(new double[] { 0, -1, -2, 10, 9, 8, 20, 19, 18, 30, 29, 28 }));
+            Assert.True(a9.Data.SequenceEqual(new double[] { 0, -1, -2, 10, 9, 8, 20, 19, 18, 30, 29, 28 }));
 
         }
 
@@ -283,6 +314,39 @@ namespace NeuralNet.UnitTests
 
         }
 
+        [Fact]
+        public void NDimArray_Test_Broadcast2D_Mul_Operation()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 0, 0, 0, 10, 10, 10, 20, 20, 20, 30, 30, 30);
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 0, 1, 2);
+            NDimArray a3 = new NDimArray(new int[] { 1, 3 }, 0, 1, 2);
+            NDimArray a4 = new NDimArray(new int[] { 4, 1 }, 0, 10, 20, 30);
+
+            Assert.True(a1.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a2.Shape.SequenceEqual(new int[] { 3 }));
+            Assert.True(a3.Shape.SequenceEqual(new int[] { 1, 3 }));
+
+            NDimArray a5 = a1 * a2;
+            NDimArray a6 = a1 * a3;
+            NDimArray a7 = a1 * a4;
+            NDimArray a8 = a4 * a3;
+            NDimArray a9 = a4 * a2;
+
+
+            Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a6.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a7.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a8.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a9.Shape.SequenceEqual(new int[] { 4, 3 }));
+
+            Assert.True(a5.Data.SequenceEqual(new double[] { 0, 0, 0, 0, 10, 20, 0, 20, 40, 0, 30, 60 }));
+            Assert.True(a6.Data.SequenceEqual(new double[] { 0, 0, 0, 0, 10, 20, 0, 20, 40, 0, 30, 60 }));
+            Assert.True(a7.Data.SequenceEqual(new double[] { 0, 0, 0, 100, 100, 100, 400, 400, 400, 900, 900, 900 }));
+            Assert.True(a8.Data.SequenceEqual(new double[] { 0, 0, 0, 0, 10, 20, 0, 20, 40, 0, 30, 60 }));
+            Assert.True(a9.Data.SequenceEqual(new double[] { 0, 0, 0, 0, 10, 20, 0, 20, 40, 0, 30, 60 }));
+
+        }
+
 
 
 
@@ -308,7 +372,7 @@ namespace NeuralNet.UnitTests
             NDimArray a = arr1 / arr3;
             NDimArray b = arr3 / arr1;
             Assert.True(a.Shape.SequenceEqual(new int[] { 3, 4 }));
-            
+
             Assert.True(a.Data.SequenceEqual(new double[] { 0.5, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 }));
 
             Assert.True(b.Shape.SequenceEqual(new int[] { 3, 4 }));
@@ -325,6 +389,39 @@ namespace NeuralNet.UnitTests
 
             Assert.Throws<InvalidOperationException>(() => a1 / a2);
             Assert.Throws<NotImplementedException>(() => a1 / a3);
+
+        }
+
+        [Fact]
+        public void NDimArray_Test_Broadcast2D_TrueDiv_Operation()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24);
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 2, 2, 2);
+            NDimArray a3 = new NDimArray(new int[] { 1, 3 }, 2, 2, 2);
+            NDimArray a4 = new NDimArray(new int[] { 4, 1 }, 2, 2, 2, 2);
+
+            Assert.True(a1.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a2.Shape.SequenceEqual(new int[] { 3 }));
+            Assert.True(a3.Shape.SequenceEqual(new int[] { 1, 3 }));
+
+            NDimArray a5 = a1 / a2;
+            NDimArray a6 = a1 / a3;
+            NDimArray a7 = a1 / a4;
+            NDimArray a8 = a4 / a3;
+            NDimArray a9 = a4 / a2;
+
+
+            Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a6.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a7.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a8.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a9.Shape.SequenceEqual(new int[] { 4, 3 }));
+
+            Assert.True(a5.Data.SequenceEqual(new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }));
+            Assert.True(a6.Data.SequenceEqual(new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }));
+            Assert.True(a7.Data.SequenceEqual(new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }));
+            Assert.True(a8.Data.SequenceEqual(new double[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }));
+            Assert.True(a9.Data.SequenceEqual(new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }));
 
         }
 
@@ -393,16 +490,16 @@ namespace NeuralNet.UnitTests
             double res = a1.Sum();
 
             Assert.True(res == 78);
-           
+
         }
 
         [Fact]
         public void NDimArray_Test_Tanh()
         {
-            NDimArray a1 = new NDimArray(new int[] {3}, 1, 2, 3);
+            NDimArray a1 = new NDimArray(new int[] { 3 }, 1, 2, 3);
             NDimArray a2 = NDimArray.Tanh(a1);
 
-            
+
             Assert.True(a2.Data.SequenceEqual(new double[] { 0.7615941559557649, 0.9640275800758169, 0.9950547536867305 }));
         }
 
@@ -410,9 +507,9 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void NDimArray_Test_Exp()
         {
-            NDimArray a1 = new NDimArray(new int[] {3}, 1, 2, 3);
+            NDimArray a1 = new NDimArray(new int[] { 3 }, 1, 2, 3);
             NDimArray a2 = NDimArray.Exp(a1);
-            
+
             Assert.True(a2.Data.SequenceEqual(new double[] { 2.718281828459045, 7.38905609893065, 20.085536923187668 }));
         }
 
@@ -423,8 +520,8 @@ namespace NeuralNet.UnitTests
             NDimArray a1 = new NDimArray(new int[] { 3, 2 }, 1, 2, 3, 4, 5, 6);
             NDimArray aT = a1.Transpose();
 
-            Assert.True(aT.Shape.SequenceEqual(new int[]{2,3}));
-            Assert.True(aT.Data.SequenceEqual(new double[] {1,3,5,2,4,6}));
+            Assert.True(aT.Shape.SequenceEqual(new int[] { 2, 3 }));
+            Assert.True(aT.Data.SequenceEqual(new double[] { 1, 3, 5, 2, 4, 6 }));
 
 
         }
@@ -435,8 +532,8 @@ namespace NeuralNet.UnitTests
             NDimArray a1 = new NDimArray(new int[] { 3 }, 1, 2, 3);
             NDimArray aT = a1.Transpose();
 
-            Assert.True(aT.Shape.SequenceEqual(new int[]{3}));
-            Assert.True(aT.Data.SequenceEqual(new double[] {1,2,3}));
+            Assert.True(aT.Shape.SequenceEqual(new int[] { 3 }));
+            Assert.True(aT.Data.SequenceEqual(new double[] { 1, 2, 3 }));
 
 
         }
@@ -444,7 +541,7 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void NDimArray_Test_Transpose_DimException()
         {
-            NDimArray a1 = new NDimArray(new int[] { 1,1,3 }, 1, 2, 3);
+            NDimArray a1 = new NDimArray(new int[] { 1, 1, 3 }, 1, 2, 3);
 
             Assert.Throws<NotImplementedException>(() => a1.Transpose());
 
