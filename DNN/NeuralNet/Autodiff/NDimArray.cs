@@ -282,9 +282,103 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
+
+        public static int[] GetBroadcastedShapes(int[] shapeArr1,int[] shapeArr2)
+        {
+            int maxShapeLength = (shapeArr1.Length >= shapeArr2.Length) ? shapeArr1.Length : shapeArr2.Length;
+
+            int[] shapeRes = new int[maxShapeLength];
+
+            int arr1Index = shapeArr1.Length-1;
+            int arr2Index = shapeArr2.Length-1;
+
+            int cptIndex = maxShapeLength-1;
+            while(cptIndex >= 0)
+            {
+                shapeRes[cptIndex] = (shapeArr1[arr1Index] >= shapeArr2[arr2Index]) ? shapeArr1[arr1Index] : shapeArr2[arr2Index];
+
+                // decrement the indexes if possible
+                if (arr1Index > 0) {
+                    arr1Index--;
+                }
+                else
+                {
+                    shapeArr1[arr1Index] = 1; // set this dim to 1, so the dim of the other array will always be >= 
+                }
+
+                if (arr2Index > 0) {
+                    arr2Index--;
+                }
+                else
+                {
+                    shapeArr2[arr2Index] = 1;
+                }
+
+                cptIndex--;
+            }
+
+            return shapeRes;
+            
+        }
+
+        public static NDimArray Extend2DArrayByShape(NDimArray currentArray, int[] newShape)
+        {
+            if (currentArray.Shape.SequenceEqual(newShape))
+            {
+                return currentArray;
+            }
+
+            NDimArray res = new NDimArray(newShape);
+            // Case where the array as only one dimension (multiple columns and one line)
+            if (currentArray.Ndim == 1 || (currentArray.Ndim == 2 && currentArray.Shape[0]==1))
+            {
+                int nbRowsToAdd = newShape[0];
+                for(int i = 0; i < nbRowsToAdd; i++)
+                {
+                    // The number of columns is contained in shape[1] if there is two dimensions, and contained in shape[0] if there is one dimension
+                    for(int j = 0; j < ((currentArray.Ndim == 2) ? currentArray.Shape[1] : currentArray.Shape[0]); j++)
+                    {
+                        if (currentArray.Ndim == 1)
+                        {
+                            res[i, j] = currentArray[j];
+                        }
+                        else 
+                        {
+                            res[i, j] = currentArray[0, j];
+                        }
+                    }
+                }
+            }
+            // Case where the array as 2 dimensions, one column and multiple rows
+            else if (currentArray.Shape[1] == 1)
+            {
+                int nbColToAdd = newShape[1];
+                for (int i = 0; i < currentArray.Shape[0]; i++)
+                {
+                    for (int j = 0; j < nbColToAdd; j++)
+                    {
+                        res[i, j] = currentArray[i, 0];
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        private static NDimArray ApplyBroadcastOperationBetween2DArrays(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
+        {
+
+            int[] shapeRes = GetBroadcastedShapes(arr1.Shape, arr2.Shape);
+            NDimArray newArr1 = Extend2DArrayByShape(arr1, shapeRes); //return an extended version of this array if needed
+            NDimArray newArr2 = Extend2DArrayByShape(arr2, shapeRes);
+
+            return ApplyOperationBetweenNDimArray(operation, newArr1, newArr2);
+        }
+
         public static NDimArray ApplyOperation(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
         {
             // If the shapes are equals
+           
             if (arr1.Shape.SequenceEqual(arr2.Shape))
             {
                 return ApplyOperationBetweenNDimArray(operation, arr1, arr2);
@@ -297,8 +391,15 @@ namespace NeuralNet.Autodiff
             }
             else if (IsOperationBroadcastable(arr1.Shape, arr2.Shape))
             {
-                //TODO: implement broadcasting
-                throw new NotImplementedException("Broadcast operation is not supported yet.");
+                //TODO: implement NDIM broadcasting, only 2D broadcasting is supported yet
+                if(arr1.Shape.Length <=2 && arr2.Shape.Length <= 2)
+                {
+                    return ApplyBroadcastOperationBetween2DArrays(operation, arr1, arr2);
+                }
+                else
+                {
+                    throw new NotImplementedException("Broadcast operation for n>2 ndimarray is not supported yet.");
+                }
             }
             else
             {

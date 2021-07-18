@@ -38,5 +38,22 @@ namespace NeuralNet.UnitTests
 
         }
 
+        [Fact]
+        public void Tensor_Test_GetBroadcastedShape()
+        {
+            int[] b1 = NDimArray.GetBroadcastedShapes(new int[] { 2, 3, 1, 4, 2 }, new int[] { 3, 1, 2 });
+            Assert.True(b1.SequenceEqual(new int[] { 2, 3, 3, 4, 2 }));
+
+            int[] b2 = NDimArray.GetBroadcastedShapes(new int[] { 2, 3, 1, 4, 2 }, new int[] { 1, 1 });
+            Assert.True(b2.SequenceEqual(new int[] { 2, 3, 1, 4, 2 }));
+
+            int[] b3 = NDimArray.GetBroadcastedShapes(new int[] { 2, 3 }, new int[] { 3 });
+            Assert.True(b3.SequenceEqual(new int[] { 2, 3 }));
+
+            int[] b4 = NDimArray.GetBroadcastedShapes(new int[] { 2, 3 }, new int[] { 2, 1 });
+            Assert.True(b4.SequenceEqual(new int[] { 2, 3 }));
+
+        }
+
     }
 }
