@@ -1,3 +1,4 @@
+//TODO: Generalize methods like XXX to support more than 2D arrays
 using System;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace NeuralNet.Autodiff
     public class NDimArray
     {
 
-        public double[] Data { get; private set; }
+        public double[] DataArray { get; private set; }
 
         // would be [5,3] for a (5x3) 2-darray 
         private int[] _shape;
@@ -58,14 +59,14 @@ namespace NeuralNet.Autodiff
                 }
                 else
                 {
-                    if (Data == null)
+                    if (DataArray == null)
                     {
                         // If the data array is null, return the future data length by multitplying every shapes
                         return Shape.Aggregate(1, (a, b) => a * b);
                     }
                     else
                     {
-                        return Data.Length;
+                        return DataArray.Length;
                     }
                 }
             }
@@ -74,7 +75,7 @@ namespace NeuralNet.Autodiff
         public NDimArray(params int[] shape)
         {
             Shape = shape;
-            Data = new double[NbElements];
+            DataArray = new double[NbElements];
         }
 
         public NDimArray(int[] shape, params double[] newData)
@@ -82,7 +83,7 @@ namespace NeuralNet.Autodiff
             Shape = shape;
             if (NbElements == newData.Length)
             {
-                Data = newData;
+                DataArray = newData;
             }
             else
             {
@@ -94,7 +95,7 @@ namespace NeuralNet.Autodiff
         public NDimArray(NDimArray arr)
         {
             Shape = arr.Shape;
-            Data = arr.Data;
+            DataArray = arr.DataArray;
         }
 
         public static NDimArray CreateScalar(double val)
@@ -104,7 +105,7 @@ namespace NeuralNet.Autodiff
 
         public override string ToString()
         {
-            return $"[{string.Join(", ", Data)}]";
+            return $"[{string.Join(", ", DataArray)}]";
         }
 
 
@@ -128,7 +129,7 @@ namespace NeuralNet.Autodiff
         {
             for (int i = 0; i < NbElements; i++)
             {
-                Data[i] = value;
+                DataArray[i] = value;
             }
         }
 
@@ -158,11 +159,11 @@ namespace NeuralNet.Autodiff
         {
             get
             {
-                return Data[ConvertNDIndexTo1DIndex(indexes)];
+                return DataArray[ConvertNDIndexTo1DIndex(indexes)];
             }
             set
             {
-                Data[ConvertNDIndexTo1DIndex(indexes)] = value;
+                DataArray[ConvertNDIndexTo1DIndex(indexes)] = value;
             }
         }
 
@@ -198,9 +199,91 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
-        public double Sum()
+        // Sum the element of an array, or sum along the given axis
+        //TODO: broadcasting is not supported for more than 2D arrays,
+        // so this function doesn't support axis >=2 (only null, 0 or 1)
+        public NDimArray Sum(int? axis = null, bool keepDims = false)
         {
-            return this.Data.Sum();
+            // Return the sum of the elements
+            if (axis == null || (Ndim == 2 && ((Shape[0] == 1 && axis == 1) || (Shape[1] == 1 && axis == 0))))
+            {
+                if (!keepDims)
+                {
+                    return NDimArray.CreateScalar(this.DataArray.Sum());
+                }
+                else
+                {
+                    // Return the same result, but with the same dimension
+                    int[] newShape = new int[Ndim];
+                    Array.Fill(newShape, 1);
+                    return new NDimArray(newShape, new double[] { this.DataArray.Sum() });
+                }
+            }
+            // Return the row, without a dimension if keepDims is false
+            else if (Ndim == 2 && ((Shape[0] == 1 && axis == 0) || (Shape[1] == 1 && axis == 1)))
+            {
+                if (!keepDims)
+                {
+                    return new NDimArray(new int[] { NbElements }, DataArray);
+                }
+                else
+                {
+                    return new NDimArray(this);
+                }
+            }
+            // Sum the element along the rows (delete the first dimension)
+            // if shapes are (a,b), then the sum(axis:0) will return a ndimarray with shape (b) 
+            else if (Ndim == 2 && axis == 0)
+            {
+                int[] newShape;
+                if (!keepDims)
+                {
+                    newShape = new int[] { Shape[1] };
+                }else{
+                    newShape = new int[] {1, Shape[1]};
+                }
+
+                double[] newData = new double[Shape[1]];
+                for (int j = 0; j < Shape[1]; j++)
+                {
+                    for (int i = 0; i < Shape[0]; i++)
+                    {
+                        newData[j] += this[i, j];
+                    }
+                }
+                return new NDimArray(newShape, newData);
+
+            }
+            // Sum the element along the columns (delete the second dimension)
+            // if shapes are (a,b), then the sum(axis:1) will return a ndimarray with shape (a)
+            else if (Ndim == 2 && axis == 1)
+            {
+                int[] newShape;
+                if (!keepDims)
+                {
+                    newShape = new int[] { Shape[0] };
+                }else{
+                    newShape = new int[] { Shape[0] ,1};
+                }
+                
+                double[] newData = new double[Shape[0]];
+                for (int i = 0; i < Shape[0]; i++)
+                {
+                    for (int j = 0; j < Shape[1]; j++)
+                    {
+                        newData[i] += this[i, j];
+                    }
+                }
+                return new NDimArray(newShape, newData);
+            }
+            else if (axis > Ndim - 1)
+            {
+                throw new InvalidOperationException($"Can't sum the array along axis {axis}, this array has only {Ndim} dimensions.");
+            }
+            else
+            {
+                throw new NotImplementedException($"Sum with a specified axis is not yet supported for ndim>2");
+            }
         }
 
 
@@ -210,7 +293,7 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr.Shape);
             for (int i = 0; i < arr.NbElements; i++)
             {
-                res.Data[i] = Math.Tanh(arr.Data[i]);
+                res.DataArray[i] = Math.Tanh(arr.DataArray[i]);
             }
             return res;
         }
@@ -220,7 +303,7 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr.Shape);
             for (int i = 0; i < arr.NbElements; i++)
             {
-                res.Data[i] = Math.Exp(arr.Data[i]);
+                res.DataArray[i] = Math.Exp(arr.DataArray[i]);
             }
             return res;
         }
@@ -253,7 +336,7 @@ namespace NeuralNet.Autodiff
 
         //Two dimensions are compatible when they are equal, or one of them is 1
         // https://numpy.org/doc/stable/user/basics.broadcasting.html
-        public static bool IsOperationBroadcastable(int[] shape1, int[] shape2)
+        public static bool IsShapesBroadcastable(int[] shape1, int[] shape2)
         {
             shape1 = Enumerable.Reverse(shape1).ToArray();
             shape2 = Enumerable.Reverse(shape2).ToArray();
@@ -275,7 +358,7 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr1.Shape);
             for (int i = 0; i < arr1.NbElements; i++)
             {
-                res.Data[i] = operation(arr1.Data[i], arr2.Data[i]);
+                res.DataArray[i] = operation(arr1.DataArray[i], arr2.DataArray[i]);
             }
             return res;
         }
@@ -290,11 +373,11 @@ namespace NeuralNet.Autodiff
             {
                 if (array == arr1)
                 {
-                    res.Data[i] = operation(arr1.Data[i], arr2.Data[0]);
+                    res.DataArray[i] = operation(arr1.DataArray[i], arr2.DataArray[0]);
                 }
                 else
                 {
-                    res.Data[i] = operation(arr1.Data[0], arr2.Data[i]);
+                    res.DataArray[i] = operation(arr1.DataArray[0], arr2.DataArray[i]);
                 }
             }
             return res;
@@ -418,7 +501,7 @@ namespace NeuralNet.Autodiff
             {
                 return ApplyOperationWithScalar(operation, arr1, arr2);
             }
-            else if (IsOperationBroadcastable(arr1.Shape, arr2.Shape))
+            else if (IsShapesBroadcastable(arr1.Shape, arr2.Shape))
             {
 
                 //TODO: implement NDIM broadcasting, only 2D broadcasting is supported yet
