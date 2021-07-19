@@ -23,7 +23,7 @@ namespace NeuralNet.UnitTests
             Assert.True(t4.Grad.Data.Data.SequenceEqual(new double[] { 0,0,0,0,0,0 }));
             Assert.True(t1.Grad == null);
 
-            Console.WriteLine(t4);
+            //Console.WriteLine(t4);
         }
 
         [Fact]
@@ -52,6 +52,29 @@ namespace NeuralNet.UnitTests
 
             int[] b4 = NDimArray.GetBroadcastedShapes(new int[] { 2, 3 }, new int[] { 2, 1 });
             Assert.True(b4.SequenceEqual(new int[] { 2, 3 }));
+
+        }
+
+        [Fact]
+        public void Tensor_Test_Sum()
+        {
+            Tensor t1 = new Tensor(data:new NDimArray(new int[]{3},1,2,3),requiresGrad:true);
+            Tensor t2 = t1.Sum();
+
+            t2.Backward();
+            Assert.True(t1.Data.Data.SequenceEqual(new double[]{1,2,3}));
+            Assert.True(t2.Data.Data.SequenceEqual(new double[]{6}));
+
+            Assert.True(t1.Grad.Data.Data.SequenceEqual(new double[]{1,1,1}));
+
+            t2.ZeroGrad();
+            t1.ZeroGrad();
+
+            t2.Backward(new Tensor(new NDimArray(new int[]{1},-5)));
+
+            Assert.True(t2.Data.Data.SequenceEqual(new double[]{6}));
+            Console.WriteLine(string.Join(", ",t1.Grad.Data.Data));
+            Assert.True(t1.Grad.Data.Data.SequenceEqual(new double[]{-5,-5,-5}));
 
         }
 

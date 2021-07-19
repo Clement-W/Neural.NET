@@ -98,17 +98,31 @@ namespace NeuralNet.Autodiff
 
         }
 
-        /*public Tensor Sum()
+        // Return the sum of the tensor's elements
+        public Tensor Sum()
         {
-            double data = Data.Sum();
+            double val = Data.Sum();
+            NDimArray data = new NDimArray(new int[]{1},val);
+            TensorDependency[] dependencies = null;
+
             if (RequiresGrad)
             {
                 NDimArray GradientFunction(NDimArray incomingGrad)
                 {
-
+                    /*
+                    incomingGrad is a one element tensor, because the output of the sum is a 
+                    one element tensor. In the sum function, each element has the same weight 
+                    (1*x1 + 1*x2 + ... + 1*xn), so the gradient of this tensor wrt to the sum tensor
+                    is a tensor of composed of ones, with the same shape of the original tensor.
+                    d(grad)/d(thisTensor) = d(grad)/d(sum) * d(sum)/d(thisTensor) = grad * (1,1,1,...)
+                    */
+                   return incomingGrad * NDimArray.Ones_like(this.Data);
                 }
+                dependencies = new TensorDependency[]{new TensorDependency(this,GradientFunction)};
             }
-        }*/
+            
+            return new Tensor(data,RequiresGrad,dependencies);
+        }
 
     }
 }
