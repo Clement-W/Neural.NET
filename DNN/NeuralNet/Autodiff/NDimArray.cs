@@ -72,18 +72,18 @@ namespace NeuralNet.Autodiff
             }
         }
 
-        public NDimArray(params int[] shape)
+        public NDimArray(int[] shape)
         {
             Shape = shape;
             DataArray = new double[NbElements];
         }
 
-        public NDimArray(int[] shape, params double[] newData)
+        public NDimArray(int[] shape, params double[] data)
         {
             Shape = shape;
-            if (NbElements == newData.Length)
+            if (NbElements == data.Length)
             {
-                DataArray = newData;
+                DataArray = data;
             }
             else
             {
@@ -98,9 +98,11 @@ namespace NeuralNet.Autodiff
             DataArray = arr.DataArray;
         }
 
-        public static NDimArray CreateScalar(double val)
+        // Used to create a 1DimArray
+        public NDimArray(params double[] data)
         {
-            return new NDimArray(new int[] { 1 }, val);
+            Shape = new int[]{data.Length};
+            DataArray = data;
         }
 
         public override string ToString()
@@ -209,7 +211,7 @@ namespace NeuralNet.Autodiff
             {
                 if (!keepDims)
                 {
-                    return NDimArray.CreateScalar(this.DataArray.Sum());
+                    return new NDimArray(this.DataArray.Sum());
                 }
                 else
                 {

@@ -19,8 +19,13 @@ namespace NeuralNet.UnitTests
             TensorDependency[] tdeps = new TensorDependency[] { new TensorDependency(t2, ((w) => w)) };
             Tensor t4 = new Tensor(b, requiresGrad: true,dependencies:tdeps);
 
+            Tensor t5 = new Tensor(new int[]{3,2},requiresGrad:true);
+            Tensor t6 = new Tensor(requiresGrad:true,1,2,3,4,5);
+
             Assert.True(t4.Grad.Shape.SequenceEqual(new int[] { 3, 2 }));
             Assert.True(t2.NDim == 3);
+            Assert.True(t5.NDim == 2);
+            Assert.True(t6.Data.NbElements==5);
             Assert.True(t4.Grad.Data.DataArray.SequenceEqual(new double[] { 0,0,0,0,0,0 }));
             Assert.True(t1.Grad == null);
 
@@ -59,7 +64,7 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void Tensor_Test_Sum()
         {
-            Tensor t1 = new Tensor(data:new NDimArray(new int[]{3},1,2,3),requiresGrad:true);
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
             Tensor t2 = t1.Sum();
 
             t2.Backward();
@@ -71,7 +76,7 @@ namespace NeuralNet.UnitTests
             t2.ZeroGrad();
             t1.ZeroGrad();
 
-            t2.Backward(new Tensor(new NDimArray(new int[]{1},-5)));
+            t2.Backward(new Tensor(-5));
 
             Assert.True(t2.Data.DataArray.SequenceEqual(new double[]{6}));
             Console.WriteLine(string.Join(", ",t1.Grad.Data.DataArray));
@@ -82,14 +87,14 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void Tensor_Test_Simple_Addition()
         {
-            Tensor t1 = new Tensor(data:new NDimArray(new int[]{3},1,2,3),requiresGrad:true);
-            Tensor t2 = new Tensor(data:new NDimArray(new int[]{3},4,5,6));
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(4,5,6);
 
             Tensor t3 = t1 + t2;
 
             Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{5,7,9}));
 
-            t3.Backward(new Tensor(new NDimArray(new int[]{3},10,20,30)));
+            t3.Backward(new Tensor(10,20,30));
             
             Assert.True(t3.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
             Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
@@ -100,14 +105,14 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void Tensor_Test_Simple_IAdd()
         {
-            Tensor t1 = new Tensor(data:new NDimArray(new int[]{3},1,2,3),requiresGrad:true);
-            Tensor t2 = new Tensor(data:new NDimArray(new int[]{3},4,5,6));
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(4,5,6);
 
             Tensor t3 = t1 + t2;
 
-            t3.Backward(new Tensor(new NDimArray(new int[]{3},10,20,30)));
+            t3.Backward(new Tensor(10,20,30));
 
-            t1+=new Tensor(NDimArray.CreateScalar(0.5));
+            t1+=new Tensor(0.5);
             Assert.True(t1.Data.DataArray.SequenceEqual(new double[]{1.5,2.5,3.5}));
             Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{0,0,0}));
 

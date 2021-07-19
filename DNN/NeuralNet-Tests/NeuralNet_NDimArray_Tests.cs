@@ -11,15 +11,17 @@ namespace NeuralNet.UnitTests
         private NDimArray arr1;
         private NDimArray arr2;
         private NDimArray arr3;
+
         private NDimArray arr4;
 
         public NeuralNet_NDimArray_Tests()
         {
             // new object created for each method
-            arr1 = new NDimArray(3, 4);
+            arr1 = new NDimArray(new int[]{3, 4});
             arr2 = new NDimArray(new int[] { 2, 3, 2 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-            arr3 = new NDimArray(1);
-            arr4 = NDimArray.CreateScalar(2);
+
+            arr3 = new NDimArray(2);
+            arr4 = new NDimArray(1,2,3,4,5,6);
 
         }
 
@@ -30,8 +32,9 @@ namespace NeuralNet.UnitTests
             //Console.WriteLine(arr.Shape.GetType());
             Assert.True(arr1.Shape.SequenceEqual(new int[] { 3, 4 }));
             Assert.True(arr2.Shape.SequenceEqual(new int[] { 2, 3, 2 }));
+
             Assert.True(arr3.Shape.SequenceEqual(new int[] { 1 }));
-            Assert.True(arr4.Shape.SequenceEqual(new int[] { 1 }));
+            Assert.True(arr4.Shape.SequenceEqual(new int[] { 6 }));
             NDimArray a = new NDimArray(arr2);
             Assert.True(a.Shape.SequenceEqual(new int[] { 2, 3, 2 }));
 
@@ -42,8 +45,9 @@ namespace NeuralNet.UnitTests
         {
             Assert.True(arr1.NbElements == 12);
             Assert.True(arr2.NbElements == 12);
+
             Assert.True(arr3.NbElements == 1);
-            Assert.True(arr4.NbElements == 1);
+            Assert.True(arr4.NbElements == 6);
 
         }
 
@@ -52,17 +56,20 @@ namespace NeuralNet.UnitTests
         {
             Assert.True(arr1.StepIndexes.SequenceEqual(new int[] { 4, 1 }));
             Assert.True(arr2.StepIndexes.SequenceEqual(new int[] { 6, 2, 1 }));
+            
             Assert.True(arr3.StepIndexes.SequenceEqual(new int[] { 1 }));
             Assert.True(arr4.StepIndexes.SequenceEqual(new int[] { 1 }));
         }
 
         [Fact]
-        public void NDimArray_Test_ReadDefaultValue()
+        public void NDimArray_Test_ReadValue()
         {
             Assert.True(arr1[1, 1] == 0);
             Assert.True(arr2[1, 1, 1] == 10);
-            Assert.True(arr3[0] == 0);
-            Assert.True(arr4[0] == 2);
+
+            Assert.True(arr3[0] == 2);
+
+            Assert.True(arr4[0] == 1);
         }
 
         [Fact]
@@ -75,7 +82,7 @@ namespace NeuralNet.UnitTests
             arr3.FillWithValue(100);
             Assert.True(arr3[0] == 100);
             arr4.FillWithValue(100);
-            Assert.True(arr4[0] == 100);
+            Assert.True(arr3[0] == 100);
 
         }
 

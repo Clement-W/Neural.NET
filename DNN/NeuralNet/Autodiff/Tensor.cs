@@ -56,6 +56,15 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        public Tensor(int[] shape, bool requiresGrad = false, TensorDependency[] dependencies = null)
+        : this(new NDimArray(shape), requiresGrad, dependencies) { }
+
+        public Tensor(bool requiresGrad, params double[] data)
+        : this(new NDimArray(data), requiresGrad) { }
+
+        public Tensor(params double[] data)
+        : this(new NDimArray(data)) { }
+
         public override string ToString()
         {
             return $"Tensor, shape=({string.Join(", ", Shape)}, requiresGradient = {RequiresGrad} ,data = ({this.Data})";
@@ -81,7 +90,7 @@ namespace NeuralNet.Autodiff
                 // If the tensor contains only one element
                 if (Shape.Length == 1 && Shape[0] == 1)
                 {
-                    gradient = new Tensor(NDimArray.CreateScalar(1));
+                    gradient = new Tensor(1);
                 }
                 else
                 {
@@ -98,7 +107,7 @@ namespace NeuralNet.Autodiff
                 foreach (TensorDependency dependency in TensorDependencies)
                 {
                     // Compute the gradient with respect to this dependency thanks to the gradient function
-                    NDimArray backwardGradient = dependency.GradFunction(gradient.Data);//FIXME: or Grad.Data ?
+                    NDimArray backwardGradient = dependency.GradFunction(Grad.Data);// or gradient.Data ?
                     // Backward this gradient through this dependency
                     dependency.TensorDep.Backward(new Tensor(backwardGradient));
                 }
@@ -194,7 +203,7 @@ namespace NeuralNet.Autodiff
                 }
                 dependencies = new TensorDependency[] { new TensorDependency(t2, GradientFunction2) };
             }
-            return new Tensor(data,requiresGradient,dependencies);
+            return new Tensor(data, requiresGradient, dependencies);
         }
 
     }
