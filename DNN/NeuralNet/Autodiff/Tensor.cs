@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace NeuralNet.Autodiff
 {
@@ -177,7 +178,10 @@ namespace NeuralNet.Autodiff
         {
             NDimArray data = t1.Data + t2.Data;
             bool requiresGradient = t1.RequiresGrad || t2.RequiresGrad;
-            TensorDependency[] dependencies = null;
+
+            int nbDependencies = new[] { t1.RequiresGrad, t2.RequiresGrad }.Count(x => x);
+            TensorDependency[] dependencies = (nbDependencies > 0) ? new TensorDependency[nbDependencies] : null;
+
 
             if (t1.RequiresGrad)
             {
@@ -189,7 +193,7 @@ namespace NeuralNet.Autodiff
                     */
                     return HandleBroadcasting(incomingGrad, t1);
                 }
-                dependencies = new TensorDependency[] { new TensorDependency(t1, GradientFunction1) };
+                dependencies[0] = new TensorDependency(t1, GradientFunction1);
             }
             if (t2.RequiresGrad)
             {
@@ -201,10 +205,149 @@ namespace NeuralNet.Autodiff
                     */
                     return HandleBroadcasting(incomingGrad, t2);
                 }
-                dependencies = new TensorDependency[] { new TensorDependency(t2, GradientFunction2) };
+                //nbDependencies-1 = 0 or 1
+                dependencies[nbDependencies - 1] = new TensorDependency(t2, GradientFunction2);
             }
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        public static Tensor operator *(Tensor t1, Tensor t2)
+        {
+            NDimArray data = t1.Data * t2.Data;
+            bool requiresGradient = t1.RequiresGrad || t2.RequiresGrad;
+
+            int nbDependencies = new[] { t1.RequiresGrad, t2.RequiresGrad }.Count(x => x);
+            TensorDependency[] dependencies = (nbDependencies > 0) ? new TensorDependency[nbDependencies] : null;
+
+
+            if (t1.RequiresGrad)
+            {
+                NDimArray GradientFunction1(NDimArray incomingGrad)
+                {
+                    /*
+                    d(t1*t2)/d(t1) = t2, so we just need to multiply the incoming gradient by t2.
+                    We also need to handle broadcasting operation.
+                    */
+                    incomingGrad = incomingGrad * t2.Data;
+                    return HandleBroadcasting(incomingGrad, t1);
+                }
+                dependencies[0] = new TensorDependency(t1, GradientFunction1);
+            }
+            if (t2.RequiresGrad)
+            {
+                NDimArray GradientFunction2(NDimArray incomingGrad)
+                {
+                    /*
+                    d(t1*t2)/d(t2) = t1, so we just need to multiply the incoming gradient by t1.
+                    We also need to handle broadcasting operation.
+                    */
+                    incomingGrad = incomingGrad * t1.Data;
+                    return HandleBroadcasting(incomingGrad, t2);
+                }
+                //nbDependencies-1 = 0 or 1
+                dependencies[nbDependencies - 1] = new TensorDependency(t2, GradientFunction2);
+            }
+            return new Tensor(data, requiresGradient, dependencies);
+        }
+
+
+        public static Tensor operator -(Tensor t1)
+        {
+            NDimArray data = -t1.Data;
+            bool requiresGradient = t1.RequiresGrad;
+            TensorDependency[] dependencies = (requiresGradient) ? new TensorDependency[1] : null;
+
+
+            if (t1.RequiresGrad)
+            {
+                NDimArray GradientFunction1(NDimArray incomingGrad)
+                {
+                    /*
+                    d(-t1)/d(t1) = -1, so we just need to multiply the incoming gradient by -1.
+                    */
+                    return -incomingGrad;
+                }
+                dependencies[0] = new TensorDependency(t1, GradientFunction1);
+            }
+
+            return new Tensor(data, requiresGradient, dependencies);
+        }
+
+        public static Tensor operator -(Tensor t1, Tensor t2)
+        {
+            NDimArray data = t1.Data - t2.Data;
+            bool requiresGradient = t1.RequiresGrad || t2.RequiresGrad;
+
+            int nbDependencies = new[] { t1.RequiresGrad, t2.RequiresGrad }.Count(x => x);
+            TensorDependency[] dependencies = (nbDependencies > 0) ? new TensorDependency[nbDependencies] : null;
+
+
+            if (t1.RequiresGrad)
+            {
+                NDimArray GradientFunction1(NDimArray incomingGrad)
+                {
+                    /*
+                    d(t1-t2)/d(t1) = 1, so we just need to multiply the incoming gradient by 1.
+                    We also need to handle broadcasting operation.
+                    */
+                    return HandleBroadcasting(incomingGrad, t1);
+                }
+                dependencies[0] = new TensorDependency(t1, GradientFunction1);
+            }
+            if (t2.RequiresGrad)
+            {
+                NDimArray GradientFunction2(NDimArray incomingGrad)
+                {
+                    /*
+                    d(t1*t2)/d(t2) = -1, so we just need to multiply the incoming gradient by -1.
+                    We also need to handle broadcasting operation.
+                    */
+                    return HandleBroadcasting(-incomingGrad, t2);
+                }
+                //nbDependencies-1 = 0 or 1
+                dependencies[nbDependencies - 1] = new TensorDependency(t2, GradientFunction2);
+            }
+            return new Tensor(data, requiresGradient, dependencies);
+        }
+
+
+        public static Tensor operator /(Tensor t1, Tensor t2)
+        {
+            NDimArray data = t1.Data / t2.Data;
+            bool requiresGradient = t1.RequiresGrad || t2.RequiresGrad;
+
+            int nbDependencies = new[] { t1.RequiresGrad, t2.RequiresGrad }.Count(x => x);
+            TensorDependency[] dependencies = (nbDependencies > 0) ? new TensorDependency[nbDependencies] : null;
+
+
+            if (t1.RequiresGrad)
+            {
+                NDimArray GradientFunction1(NDimArray incomingGrad)
+                {
+                    /*
+                    d(t1/t2)/d(t1) = 1/t2, so we just need to multiply the incoming gradient by 1/t2.
+                    We also need to handle broadcasting operation.
+                    */
+                    incomingGrad = incomingGrad/t2.Data;
+                    return HandleBroadcasting(incomingGrad, t1);
+                }
+                dependencies[0] = new TensorDependency(t1, GradientFunction1);
+            }
+            if (t2.RequiresGrad)
+            {
+                NDimArray GradientFunction2(NDimArray incomingGrad)
+                {
+                    /*
+                    d(t1/t2)/d(t2) = -t1/(t2*t2), so we just need to multiply the incoming gradient by -t1/(t2*t2).
+                    We also need to handle broadcasting operation.
+                    */
+                    incomingGrad = incomingGrad * (-t1.Data/(t2.Data*t2.Data));
+                    return HandleBroadcasting(incomingGrad, t2);
+                }
+                //nbDependencies-1 = 0 or 1
+                dependencies[nbDependencies - 1] = new TensorDependency(t2, GradientFunction2);
+            }
+            return new Tensor(data, requiresGradient, dependencies);
+        }
     }
 }

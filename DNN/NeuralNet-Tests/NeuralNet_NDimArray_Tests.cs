@@ -684,6 +684,33 @@ namespace NeuralNet.UnitTests
 
         }
 
+        [Fact]
+        public void NDimArray_Test_Negation_Operation()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 0, 0, 0, 10, 10, 10, 20, 20, 20, 30, 30, 30);
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 0, 1, 2);
+            NDimArray a3 = new NDimArray(new int[] { 1, 3 }, 0, 1, 2);
+            NDimArray a4 = new NDimArray(new int[] { 4, 1 }, 0, 10, 20, 30);
+
+            
+            NDimArray a5 = -a1;
+            NDimArray a6 = -a2;
+
+            NDimArray a7 = -a3;
+            NDimArray a8 = -a4;
+
+            Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
+            Assert.True(a6.Shape.SequenceEqual(new int[] {  3 }));
+            Assert.True(a7.Shape.SequenceEqual(new int[] { 1, 3 }));
+            Assert.True(a8.Shape.SequenceEqual(new int[] { 4, 1 }));
+            
+            Assert.True(a5.DataArray.SequenceEqual(new double[] { 0, 0, 0, -10, -10, -10, -20, -20, -20, -30, -30, -30 }));
+            Assert.True(a6.DataArray.SequenceEqual(new double[] { 0, -1, -2 }));
+            Assert.True(a7.DataArray.SequenceEqual(new double[] { 0, -1, -2 }));
+            Assert.True(a8.DataArray.SequenceEqual(new double[] { 0, -10, -20, -30 }));
+       
+        }
+
 
     }
 }

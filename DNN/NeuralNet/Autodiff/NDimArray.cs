@@ -519,7 +519,7 @@ namespace NeuralNet.Autodiff
             }
             else
             {
-                throw new InvalidOperationException("Can't apply this operation between those ndimarray, dimensions are " + arr1.Shape + " and " + arr2.Shape + " which is incompatible.");
+                throw new InvalidOperationException("Can't apply this operation between those ndimarray, dimensions are " + string.Join(", ",arr1.Shape) + " and " + string.Join(", ",arr2.Shape) + " which is incompatible.");
             }
         }
 
@@ -529,6 +529,15 @@ namespace NeuralNet.Autodiff
             Func<double, double, double> addition = (a, b) => a + b;
 
             return ApplyOperation(addition, arr1, arr2);
+        }
+
+        public static NDimArray operator -(NDimArray arr1)
+        {
+            NDimArray arr2 = new NDimArray(arr1.Shape);
+            arr2.FillWithValue(-1);
+            Func<double, double, double> neg = (a, b) => a * b;
+
+            return ApplyOperation(neg, arr1, arr2);
         }
 
 

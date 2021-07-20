@@ -3,6 +3,30 @@ using NeuralNet.Autodiff;
 using System;
 using System.Linq;
 
+/*TODO: writer better tests, more files with better names : methodName_scenario_expectedBehavior
+ex: Add_SingleNumber_ReturnsSameNumber
+
+Organisation, Action, Assertion est un modèle courant pour les tests unitaires. Comme son nom l’indique, il comporte trois actions principales :
+
+    Organisation, création et configuration des objets selon les besoins
+    Agir sur un objet.
+    Assertion de ce qui est prévu
+
+Durant l’écriture des tests, essayez d’inclure uniquement une instruction Assert par test. Voici les approches courantes pour utiliser une seule assertion :
+
+    Créez un test distinct pour chaque assertion.
+    Utilisez des tests paramétrables.
+CAR : 
+    En cas d’échec d’une instruction Assert, les assertions qui suivent ne sont pas évaluées.
+    Permet de vérifier que vous n’effectuez pas l’assertion de plusieurs cas dans vos tests.
+    Vous donne une idée complète des causes de l’échec des tests.
+    ->Il existe une exception usuelle à cette règle : l’assertion d’un objet par différenciation. Dans ce cas, il est généralement acceptable d’avoir plusieurs assertions sur chaque propriété pour vérifier que l’objet se trouve dans l’état prévu.
+-> faire une méthode et utiliser inline :
+[InlineData(null)]
+[InlineData("a")]
+public void Add_InputNullOrAlphabetic_ThrowsArgumentException(string input)
+
+*/
 namespace NeuralNet.UnitTests
 {
     public class NeuralNet_Tensor_Tests
@@ -78,8 +102,7 @@ namespace NeuralNet.UnitTests
 
             t2.Backward(new Tensor(-5));
 
-            Assert.True(t2.Data.DataArray.SequenceEqual(new double[]{6}));
-            Console.WriteLine(string.Join(", ",t1.Grad.Data.DataArray));
+            Assert.True(t2.Data.DataArray.SequenceEqual(new double[]{6})); 
             Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{-5,-5,-5}));
 
         }
@@ -118,11 +141,273 @@ namespace NeuralNet.UnitTests
 
         }
 
-        //TODO: test addition broadcast
+        [Fact]
+        public void Tensor_Test_Addition_Broadcast_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},1,2,3,4,5,6),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(requiresGrad:true,7,8,9); //shape 3
 
-        
+            Tensor t3 = t1 + t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{8,10,12,11,13,15}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},1,1,1,2,2,2)));
+
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{1,1,1,2,2,2}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{3,3,3}));
+        }
+
+        [Fact]
+        public void Tensor_Test_Addition_Broadcast_No_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},1,2,3,4,5,6),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(new NDimArray(new int[]{1,3},7,8,9), requiresGrad:true); //shape 1,3
+
+            Tensor t3 = t1 + t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{8,10,12,11,13,15}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},1,1,1,2,2,2)));
+
+            Assert.True(t1.Grad.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t2.Grad.Shape.SequenceEqual(new int[]{1,3}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{1,1,1,2,2,2}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{3,3,3}));
+        }
 
 
+        [Fact]
+        public void Tensor_Test_Simple_Multiplication()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(4,5,6);
+
+            Tensor t3 = t1 * t2;
+
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{4,10,18}));
+
+            t3.Backward(new Tensor(10,20,30));
+            
+            Assert.True(t3.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{40,100,180}));
+            Assert.True(t2.Grad == null);          
+
+        }
+
+        [Fact]
+        public void Tensor_Test_Simple_IMul()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(4,5,6);
+
+            Tensor t3 = t1 * t2;
+
+            t3.Backward(new Tensor(10,20,30));
+
+            t1*=new Tensor(0.5);
+            Assert.True(t1.Data.DataArray.SequenceEqual(new double[]{0.5,1,1.5}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{0,0,0}));
+
+        }
+
+        [Fact]
+        public void Tensor_Test_Multiplication_Broadcast_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},1,2,3,4,5,6),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(requiresGrad:true,7,8,9); //shape 3
+
+            Tensor t3 = t1 * t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{7,16,27,28,40,54}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},1,1,1,2,2,2)));
+
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{7,8,9,14,16,18}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{9,12,15}));
+        }
+
+        [Fact]
+        public void Tensor_Test_Multiplication_Broadcast_No_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},1,2,3,4,5,6),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(new NDimArray(new int[]{1,3},7,8,9), requiresGrad:true); //shape 1,3
+
+            Tensor t3 = t1 * t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{7,16,27,28,40,54}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},1,1,1,2,2,2)));
+
+            Assert.True(t1.Grad.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t2.Grad.Shape.SequenceEqual(new int[]{1,3}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{7,8,9,14,16,18}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{9,12,15}));
+        }
+
+
+        [Fact]
+        public void Tensor_Test_Simple_Negation()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+       
+            Tensor t3 = -t1;
+
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{-1,-2,-3}));
+
+            t3.Backward(new Tensor(10,20,30));
+            
+            Assert.True(t3.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{-10,-20,-30}));     
+
+        } 
+
+
+        [Fact]
+        public void Tensor_Test_Simple_Substract()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(requiresGrad:true,4,5,6);
+
+            Tensor t3 = t1 - t2;
+
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{-3,-3,-3}));
+
+            t3.Backward(new Tensor(10,20,30));
+            
+            Assert.True(t3.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-10,-20,-30}));
+
+        }
+
+        [Fact]
+        public void Tensor_Test_Simple_ISub()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(4,5,6);
+
+            Tensor t3 = t1 - t2;
+
+            t3.Backward(new Tensor(10,20,30));
+
+            t1-=new Tensor(0.5);
+            Assert.True(t1.Data.DataArray.SequenceEqual(new double[]{0.5,1.5,2.5}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{0,0,0}));
+
+        }
+
+        [Fact]
+        public void Tensor_Test_Substract_Broadcast_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},1,2,3,4,5,6),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(requiresGrad:true,7,8,9); //shape 3
+
+            Tensor t3 = t1 - t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{-6,-6,-6,-3,-3,-3}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},1,1,1,2,2,2)));
+
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{1,1,1,2,2,2}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-3,-3,-3}));
+        }
+
+        [Fact]
+        public void Tensor_Test_Substract_Broadcast_No_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},1,2,3,4,5,6),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(new NDimArray(new int[]{1,3},7,8,9), requiresGrad:true); //shape 1,3
+
+            Tensor t3 = t1 - t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{-6,-6,-6,-3,-3,-3}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},1,1,1,2,2,2)));
+
+            Assert.True(t1.Grad.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t2.Grad.Shape.SequenceEqual(new int[]{1,3}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{1,1,1,2,2,2}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-3,-3,-3}));
+
+        }
+
+
+        [Fact]
+        public void Tensor_Test_Simple_TrueDivision()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(requiresGrad:true,2,2,2);
+
+            Tensor t3 = t1 / t2;
+
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{0.5,1,1.5}));
+
+            t3.Backward(new Tensor(10,20,30));
+            
+            Assert.True(t3.Grad.Data.DataArray.SequenceEqual(new double[]{10,20,30}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{5,10,15}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-2.5,-10,-22.5})); //[10,20,30] * (-t1/t2*t2)
+            //[-10,-40,-90]/[4,4,4] = [-10/4,-10,-90/4]
+
+        }
+
+        [Fact]
+        public void Tensor_Test_Simple_ITruediv()
+        {
+            Tensor t1 = new Tensor(requiresGrad:true,1,2,3);
+            Tensor t2 = new Tensor(requiresGrad:true,2,2,2);
+
+            Tensor t3 = t1 / t2;
+
+            t3.Backward(new Tensor(10,20,30));
+            
+
+            t1/=new Tensor(0.5);
+            Assert.True(t1.Data.DataArray.SequenceEqual(new double[]{2,4,6}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{0,0,0}));
+
+        }
+
+        [Fact]
+        public void Tensor_Test_TrueDivision_Broadcast_New_Dimension()
+        {
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},2,4,6,8,10,12),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(requiresGrad:true,2,2,2); //shape 3
+
+            Tensor t3 = t1 / t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{1,2,3,4,5,6}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},4,4,4,10,10,10)));
+
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{2,2,2,5,5,5}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-22,-29,-36}));
+            // [[-0.5,-1,-1.5],[-2,-2.5,-3]] * grad
+            // [[-2,-4,-6],[-20,-25,-30]] = [-22,-29,-36]
+        }
+
+        [Fact]
+        public void Tensor_Test_TrueDivision_Broadcast_No_New_Dimension()
+        {
+
+            Tensor t1 = new Tensor(new NDimArray(new int[]{2,3},2,4,6,8,10,12),requiresGrad:true); //shape 2,3
+            Tensor t2 = new Tensor(new NDimArray(new int[]{1,3},2,2,2), requiresGrad:true); //shape 1,3
+
+
+            Tensor t3 = t1 / t2;
+            Assert.True(t3.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[]{1,2,3,4,5,6}));
+
+            t3.Backward(new Tensor(new NDimArray(new int[]{2,3},4,4,4,10,10,10)));
+
+            Assert.True(t1.Grad.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(t2.Grad.Shape.SequenceEqual(new int[]{1,3}));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{2,2,2,5,5,5}));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-22,-29,-36}));
+            // [[-0.5,-1,-1.5],[-2,-2.5,-3]] * grad
+            // [[-2,-4,-6],[-20,-25,-30]] = [-22,-29,-36]
+
+        }
 
     }
 }
