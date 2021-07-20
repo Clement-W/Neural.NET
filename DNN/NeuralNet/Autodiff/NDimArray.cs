@@ -101,7 +101,7 @@ namespace NeuralNet.Autodiff
         // Used to create a 1DimArray
         public NDimArray(params double[] data)
         {
-            Shape = new int[]{data.Length};
+            Shape = new int[] { data.Length };
             DataArray = data;
         }
 
@@ -152,9 +152,6 @@ namespace NeuralNet.Autodiff
                 throw new ArgumentException("The number of indexes given (" + indexes.Length + ")" + " doesn't fit the array shape (" + Ndim + ").");
             }
         }
-
-
-
 
 
         public double this[params int[] indexes]
@@ -241,8 +238,10 @@ namespace NeuralNet.Autodiff
                 if (!keepDims)
                 {
                     newShape = new int[] { Shape[1] };
-                }else{
-                    newShape = new int[] {1, Shape[1]};
+                }
+                else
+                {
+                    newShape = new int[] { 1, Shape[1] };
                 }
 
                 double[] newData = new double[Shape[1]];
@@ -264,10 +263,12 @@ namespace NeuralNet.Autodiff
                 if (!keepDims)
                 {
                     newShape = new int[] { Shape[0] };
-                }else{
-                    newShape = new int[] { Shape[0] ,1};
                 }
-                
+                else
+                {
+                    newShape = new int[] { Shape[0], 1 };
+                }
+
                 double[] newData = new double[Shape[0]];
                 for (int i = 0; i < Shape[0]; i++)
                 {
@@ -519,7 +520,7 @@ namespace NeuralNet.Autodiff
             }
             else
             {
-                throw new InvalidOperationException("Can't apply this operation between those ndimarray, dimensions are " + string.Join(", ",arr1.Shape) + " and " + string.Join(", ",arr2.Shape) + " which is incompatible.");
+                throw new InvalidOperationException("Can't apply this operation between those ndimarray, dimensions are " + string.Join(", ", arr1.Shape) + " and " + string.Join(", ", arr2.Shape) + " which is incompatible.");
             }
         }
 

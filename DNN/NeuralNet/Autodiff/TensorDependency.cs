@@ -12,12 +12,12 @@ namespace NeuralNet.Autodiff
          */
 
         // The tensor dependence
-        public Tensor TensorDep{get;set;}
+        public Tensor TensorDep { get; set; }
 
         // The gradient function, takes a NDimArray as input, and ouput a NDimArray
-        public Func<NDimArray,NDimArray> GradFunction { get; set; }
+        public Func<NDimArray, NDimArray> GradFunction { get; set; }
 
-        public TensorDependency(Tensor tensor, Func<NDimArray,NDimArray> gradF)
+        public TensorDependency(Tensor tensor, Func<NDimArray, NDimArray> gradF)
         {
             TensorDep = tensor;
             GradFunction = gradF;
@@ -28,6 +28,6 @@ namespace NeuralNet.Autodiff
 
 
 
-        
+
     }
 }

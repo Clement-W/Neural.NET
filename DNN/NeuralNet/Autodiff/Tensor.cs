@@ -328,7 +328,7 @@ namespace NeuralNet.Autodiff
                     d(t1/t2)/d(t1) = 1/t2, so we just need to multiply the incoming gradient by 1/t2.
                     We also need to handle broadcasting operation.
                     */
-                    incomingGrad = incomingGrad/t2.Data;
+                    incomingGrad = incomingGrad / t2.Data;
                     return HandleBroadcasting(incomingGrad, t1);
                 }
                 dependencies[0] = new TensorDependency(t1, GradientFunction1);
@@ -341,7 +341,7 @@ namespace NeuralNet.Autodiff
                     d(t1/t2)/d(t2) = -t1/(t2*t2), so we just need to multiply the incoming gradient by -t1/(t2*t2).
                     We also need to handle broadcasting operation.
                     */
-                    incomingGrad = incomingGrad * (-t1.Data/(t2.Data*t2.Data));
+                    incomingGrad = incomingGrad * (-t1.Data / (t2.Data * t2.Data));
                     return HandleBroadcasting(incomingGrad, t2);
                 }
                 //nbDependencies-1 = 0 or 1
@@ -349,5 +349,8 @@ namespace NeuralNet.Autodiff
             }
             return new Tensor(data, requiresGradient, dependencies);
         }
+
+        //TODO: add pow operator
+        //TODO: add array slice 
     }
 }
