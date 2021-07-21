@@ -23,7 +23,7 @@ namespace NeuralNet.Autodiff
 
         public bool RequiresGrad { get; set; }
 
-        public TensorDependency[] TensorDependencies { get; set; } //TODO: list or array ?
+        public TensorDependency[] TensorDependencies { get; set; }
 
         public Tensor Grad { get; set; }
 
@@ -213,7 +213,7 @@ namespace NeuralNet.Autodiff
             for (int i = 0; i < tensor.NDim; i++)
             {
                 // If the dimension is equal to 1, it means that the operation is broadcasted along this axis
-                // If it's a scalar, it doesn't change anything //FIXME: bug with scalar ?
+                // If it's a scalar, it doesn't change anything 
                 if (tensor.Shape[i] == 1)
                 {
                     //Console.WriteLine("opertion will be broadcsted alongo axis " + i);

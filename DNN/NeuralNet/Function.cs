@@ -13,7 +13,7 @@ namespace NeuralNet
                 NDimArray GradientFunction(NDimArray incomingGrad)
                 {
                     // derivataive of tanh(x) is (1-tanh^2(x))
-                    return incomingGrad * (new NDimArray(1) - data * data);
+                    return incomingGrad * (1 - data * data);
                 }
 
                 dependencies = new TensorDependency[] { new TensorDependency(t, GradientFunction) };
@@ -54,7 +54,7 @@ namespace NeuralNet
 
         public static Tensor Sigmoid(Tensor t)
         {
-            NDimArray data = new NDimArray(1)/(new NDimArray(1)+NDimArray.Exp(-t.Data));
+            NDimArray data = 1/(1+NDimArray.Exp(-t.Data));
 
             TensorDependency[] dependencies = null;
 
@@ -63,7 +63,7 @@ namespace NeuralNet
                 NDimArray GradientFunction(NDimArray incomingGrad)
                 {
                     // derivataive of sigmoid(x) is sigmoid(x)*(1-sigmoid(x))
-                    return incomingGrad * (data*(new NDimArray(1)-data));
+                    return incomingGrad * (data*(1-data));
                 }
 
                 dependencies = new TensorDependency[] { new TensorDependency(t, GradientFunction) };

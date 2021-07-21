@@ -20,7 +20,7 @@ namespace NeuralNet.UnitTests
             Tensor grad = new Tensor(1,1,1);
             tanh.Backward(grad);
 
-            Assert.True(t.Grad.Data.DataArray.SequenceEqual((grad.Data*(new NDimArray(1)-tanh.Data*tanh.Data)).DataArray));
+            Assert.True(t.Grad.Data.DataArray.SequenceEqual((grad.Data*(1-tanh.Data*tanh.Data)).DataArray));
 
         }
 
@@ -45,12 +45,12 @@ namespace NeuralNet.UnitTests
         {
             Tensor t = new Tensor(requiresGrad:true,1,2,3);
             Tensor sigmoid = Function.Sigmoid(t);
-            Assert.True(sigmoid.Data.DataArray.SequenceEqual((new NDimArray(1)/(new NDimArray(1)+NDimArray.Exp(-t.Data))).DataArray));
+            Assert.True(sigmoid.Data.DataArray.SequenceEqual((1/(1+NDimArray.Exp(-t.Data))).DataArray));
 
             Tensor grad = new Tensor(2,2,2);
             sigmoid.Backward(grad);
             
-            Assert.True(t.Grad.Data.DataArray.SequenceEqual((grad.Data * (sigmoid.Data*(new NDimArray(1)-sigmoid.Data))).DataArray));
+            Assert.True(t.Grad.Data.DataArray.SequenceEqual((grad.Data * (sigmoid.Data*(1-sigmoid.Data))).DataArray));
 
         }
 

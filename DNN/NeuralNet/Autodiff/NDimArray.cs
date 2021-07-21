@@ -563,6 +563,13 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(addition, arr1, arr2);
         }
 
+        public static NDimArray operator +(double scalar,NDimArray arr2){
+            return new NDimArray(scalar) + arr2;
+        }
+        public static NDimArray operator +(NDimArray arr1,double scalar){
+            return arr1 + new NDimArray(scalar);
+        }
+
         public static NDimArray operator -(NDimArray arr1)
         {
             NDimArray arr2 = new NDimArray(arr1.Shape);
@@ -580,6 +587,13 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(substract, arr1, arr2);
         }
 
+        public static NDimArray operator -(double scalar,NDimArray arr2){
+            return new NDimArray(scalar) - arr2;
+        }
+        public static NDimArray operator -(NDimArray arr1,double scalar){
+            return arr1 - new NDimArray(scalar);
+        }
+
         public static NDimArray operator *(NDimArray arr1, NDimArray arr2)
         {
             Func<double, double, double> mul = (a, b) => a * b;
@@ -587,11 +601,25 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(mul, arr1, arr2);
         }
 
+        public static NDimArray operator *(double scalar,NDimArray arr2){
+            return new NDimArray(scalar) * arr2;
+        }
+        public static NDimArray operator *(NDimArray arr1,double scalar){
+            return arr1 * new NDimArray(scalar);
+        }
+
         public static NDimArray operator /(NDimArray arr1, NDimArray arr2)
         {
             Func<double, double, double> truediv = (a, b) => a / b;
 
             return ApplyOperation(truediv, arr1, arr2);
+        }
+
+        public static NDimArray operator /(double scalar,NDimArray arr2){
+            return new NDimArray(scalar) / arr2;
+        }
+        public static NDimArray operator /(NDimArray arr1,double scalar){
+            return arr1 / new NDimArray(scalar);
         }
 
         public static NDimArray Matmul(NDimArray arr1, NDimArray arr2)
