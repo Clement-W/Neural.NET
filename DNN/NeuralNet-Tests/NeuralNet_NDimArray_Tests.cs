@@ -680,6 +680,16 @@ namespace NeuralNet.UnitTests
             Assert.True(a2.DataArray.SequenceEqual(new double[] { 2.718281828459045, 7.38905609893065, 20.085536923187668 }));
         }
 
+        [Fact]
+        public void NDimArray_Test_LeakyReLu()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 3 }, -1, 0, 3);
+            NDimArray a2 = NDimArray.LeakyRelu(a1);
+
+            Assert.True(a2.DataArray.SequenceEqual(new double[] { -0.01, 0, 3 }));
+        }
+
+
 
         [Fact]
         public void NDimArray_Test_Transpose()

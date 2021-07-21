@@ -327,6 +327,21 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
+        public static NDimArray LeakyRelu(NDimArray arr)
+        {
+            NDimArray res = new NDimArray(arr.Shape);
+            for (int i = 0; i < arr.NbElements; i++)
+            {
+                if(arr[i]>=0){
+                    res.DataArray[i] = arr[i];
+                }else{
+                    res.DataArray[i] = 0.01*arr[i];
+                }
+                
+            }
+            return res;
+        }
+
         public NDimArray Transpose()
         {
             //TODO: support n-dim transpose, not only 2dim

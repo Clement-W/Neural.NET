@@ -43,6 +43,14 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        public int NbElements
+        {
+            get
+            {
+                return _data.NbElements;
+            }
+        }
+
         public Tensor(NDimArray data, bool requiresGrad = false, TensorDependency[] dependencies = null)
         {
             _data = new NDimArray(data); //copy to avoid reference issues

@@ -414,33 +414,56 @@ namespace NeuralNet.UnitTests
         public void Tensor_Test_Matmul()
         {
 
-            Tensor t1 = new Tensor(new NDimArray(new int[] { 3, 2 }, 1, 2, 3, 4, 5, 6), requiresGrad: true); 
-            Tensor t2 = new Tensor(new NDimArray(new int[] { 2,1 }, 10,20), requiresGrad: true); 
+            Tensor t1 = new Tensor(new NDimArray(new int[] { 3, 2 }, 1, 2, 3, 4, 5, 6), requiresGrad: true);
+            Tensor t2 = new Tensor(new NDimArray(new int[] { 2, 1 }, 10, 20), requiresGrad: true);
 
 
-            Tensor t3 = Tensor.Matmul(t1,t2);
-            
-            Assert.True(t3.Shape.SequenceEqual(new int[] { 3,1}));
-            Assert.True(t3.Data.DataArray.SequenceEqual(new double[] { 50,110,170}));
+            Tensor t3 = Tensor.Matmul(t1, t2);
+
+            Assert.True(t3.Shape.SequenceEqual(new int[] { 3, 1 }));
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[] { 50, 110, 170 }));
         }
 
         [Fact]
         public void Tensor_Test_Matmul_After_Backward()
         {
 
-            Tensor t1 = new Tensor(new NDimArray(new int[] { 3, 2 }, 1, 2, 3, 4, 5, 6), requiresGrad: true); 
-            Tensor t2 = new Tensor(new NDimArray(new int[] { 2,1 }, 10,20), requiresGrad: true); 
+            Tensor t1 = new Tensor(new NDimArray(new int[] { 3, 2 }, 1, 2, 3, 4, 5, 6), requiresGrad: true);
+            Tensor t2 = new Tensor(new NDimArray(new int[] { 2, 1 }, 10, 20), requiresGrad: true);
 
-            Tensor t3 = Tensor.Matmul(t1,t2);
-            
-            NDimArray grad = new NDimArray(new int[] { 3, 1 }, -1,-2,-3);
+            Tensor t3 = Tensor.Matmul(t1, t2);
+
+            NDimArray grad = new NDimArray(new int[] { 3, 1 }, -1, -2, -3);
             t3.Backward(new Tensor(grad));
 
             Assert.True(t1.Grad.Shape.SequenceEqual(new int[] { 3, 2 }));
-            Assert.True(t2.Grad.Shape.SequenceEqual(new int[] { 2,1 })); //could be 2,1
-            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[]{-10,-20,-20,-40,-30,-60}));
-            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[]{-22,-28}));
+            Assert.True(t2.Grad.Shape.SequenceEqual(new int[] { 2, 1 })); //could be 2,1
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[] { -10, -20, -20, -40, -30, -60 }));
+            Assert.True(t2.Grad.Data.DataArray.SequenceEqual(new double[] { -22, -28 }));
 
+        }
+
+        [Fact]
+        public void Tensor_Test_Minimize_Function()
+        {
+            Tensor x = new Tensor(requiresGrad: true, 29, 63, 3, 9.6, -77, -23);
+
+            // Try to minimize the sum of squares
+
+            Tensor lr = new Tensor(0.1);
+
+            for (int i = 0; i < 100; i++)
+            {
+                x.ZeroGrad();
+                Tensor sumOfSquares = (x * x).Sum();
+
+                sumOfSquares.Backward();
+
+                Tensor deltaX = lr * x.Grad;
+
+                x -= deltaX;
+            }
+            Assert.True(Math.Round(x.Sum().Data.DataArray[0])==0);
         }
 
 
