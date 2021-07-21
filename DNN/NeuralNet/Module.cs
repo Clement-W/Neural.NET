@@ -1,5 +1,5 @@
 using System.Reflection;
-
+using System;
 using System.Collections.Generic;
 namespace NeuralNet
 {
@@ -19,7 +19,7 @@ namespace NeuralNet
                 {
                     yield return property.GetValue(this) as Parameter;
                 }
-                else if (property.PropertyType == typeof(Module))
+                else if (property.PropertyType.IsSubclassOf(typeof(Module)) || property.PropertyType == typeof(Module))
                 {
                     IEnumerable<Parameter> moduleParamereters = (property.GetValue(this) as Module).Parameters();
                     if (moduleParamereters != null)

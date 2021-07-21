@@ -68,8 +68,12 @@ namespace NeuralNet.Autodiff
         public Tensor(int[] shape, bool requiresGrad = false, TensorDependency[] dependencies = null)
         : this(new NDimArray(shape), requiresGrad, dependencies) { }
 
+
         public Tensor(bool requiresGrad, params double[] data)
         : this(new NDimArray(data), requiresGrad) { }
+
+        public Tensor(bool requiresGrad, int[] shape, params double[] data)
+        : this(new NDimArray(shape, data), requiresGrad) { }
 
         public Tensor(params double[] data)
         : this(new NDimArray(data)) { }
@@ -113,11 +117,12 @@ namespace NeuralNet.Autodiff
 
             //Console.WriteLine("received grad = " + string.Join(", ",gradient.Shape) + " " + string.Join(", ", gradient.Data));
 
-            
-            if(Grad==null){
+
+            if (Grad == null)
+            {
                 throw new NullReferenceException($"The gradient is null for this tensor ({this.ToString()}). Maybe the data has been set mannually, which invalidate the gradient.");
             }
-            
+
             // Add the incoming gradient to the current tensor gradient (initialy set to 0)
             // This allow gadient accumulation
             Grad.Data = Grad.Data + gradient.Data;
@@ -125,7 +130,7 @@ namespace NeuralNet.Autodiff
             //Console.WriteLine("received grad after grad update = " + string.Join(", ",gradient.Shape) + " " + string.Join(", ", gradient.Data));
 
             // Loop recursively into each dependencies of the current tensor to go through the whole graph
-            
+
             if (TensorDependencies != null)
             {
                 foreach (TensorDependency dependency in TensorDependencies)
@@ -428,7 +433,7 @@ namespace NeuralNet.Autodiff
             {
                 NDimArray GradientFunction2(NDimArray incomingGrad)
                 {
-                   
+
                     /*
                     d(t1@t2)/d(t2) = t1
                     So we just need to matmul the incoming gradient by t1. But t1 is (n1,m1 )
@@ -440,7 +445,7 @@ namespace NeuralNet.Autodiff
                     //Console.WriteLine("et (" + string.Join(", ",incomingGrad.Shape) + ") " + incomingGrad);
                     //Console.WriteLine(" res = (" + string.Join(", ",NDimArray.Matmul(t1.Data.Transpose(), incomingGrad).Shape) + ") ; " +  NDimArray.Matmul(t1.Data.Transpose(), incomingGrad));
 
-                    
+
                     //Console.WriteLine("INCOMINGgrad avant return = (" + string.Join(", ",incomingGrad.Shape) + ") " + incomingGrad );
                     return NDimArray.Matmul(t1.Data.Transpose(), incomingGrad);
                 }

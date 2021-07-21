@@ -5,7 +5,7 @@ namespace NeuralNet
     {
         public NDimArray LearningRate{get;set;}
 
-        public Optimizer(int lr){
+        public Optimizer(double lr){
             LearningRate = new NDimArray(lr);
         }
 
