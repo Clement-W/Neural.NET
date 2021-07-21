@@ -434,7 +434,7 @@ namespace NeuralNet.UnitTests
 
 
         [Fact]
-        public void NDimArray_Test_Simple_Matmul()
+        public void NDimArray_Test_Matmul_Arr2OneDim_Arr2TwoDim()
         {
             NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
             NDimArray a2 = new NDimArray(new int[] { 3, 2 }, 2, 2, 2, 2, 2, 2);
@@ -443,6 +443,47 @@ namespace NeuralNet.UnitTests
 
             Assert.True(res.Shape.SequenceEqual(new int[] { 4, 2 }));
             Assert.True(res.DataArray.SequenceEqual(new double[] { 12, 12, 30, 30, 48, 48, 66, 66 }));
+
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Matmul_With_Arr1OneDim_Arr2TwoDim()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 3 }, 2, 2, 2);
+            NDimArray a2 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+
+
+
+            Assert.Throws<InvalidOperationException>(() => NDimArray.Matmul(a1, a2));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Matmul_With_Arr1TwoDim_Arr2OneDim()
+        {
+
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 2, 2, 2);
+
+            NDimArray res = NDimArray.Matmul(a1,a2);
+
+            Assert.True(res.Shape.SequenceEqual(new int[] { 4}));
+            Assert.True(res.DataArray.SequenceEqual(new double[] { 12,30,48,66 }));
+
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Matmul_With_Arr1TwoDim_Arr1OneDim()
+        {
+
+            NDimArray a1 = new NDimArray(new int[] { 3 }, 1, 2, 3);
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 2, 2, 2);
+
+            NDimArray res = NDimArray.Matmul(a1,a2);
+
+            Assert.True(res.Shape.SequenceEqual(new int[] { 1}));
+            Assert.True(res.DataArray.SequenceEqual(new double[] { 12}));
 
         }
 
@@ -606,6 +647,19 @@ namespace NeuralNet.UnitTests
 
         }
 
+
+        [Fact]
+        public void NDimArray_Test_Sum_Limit_Axes1_1Dim()
+        {
+
+            NDimArray a1 = new NDimArray(new int[] { 4 }, 1, 2, 3, 4);
+
+            NDimArray res1 = a1.Sum(axis:0);
+            Assert.True(res1.DataArray.SequenceEqual(new double[]{10}));
+            
+
+        }
+
         [Fact]
         public void NDimArray_Test_Tanh()
         {
@@ -708,6 +762,18 @@ namespace NeuralNet.UnitTests
             Assert.True(a6.DataArray.SequenceEqual(new double[] { 0, -1, -2 }));
             Assert.True(a7.DataArray.SequenceEqual(new double[] { 0, -1, -2 }));
             Assert.True(a8.DataArray.SequenceEqual(new double[] { 0, -10, -20, -30 }));
+
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Random()
+        {
+            NDimArray a1 = NDimArray.Random(4, 3);
+            Assert.True(a1.NbElements == 12);
+            Assert.True(a1.Shape.SequenceEqual(new int[] { 4, 3 }));
+
+            //a1.PrintAsMatrix();
 
         }
 

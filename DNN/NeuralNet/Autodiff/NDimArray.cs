@@ -107,7 +107,7 @@ namespace NeuralNet.Autodiff
 
         public override string ToString()
         {
-            return $"[{string.Join(", ", DataArray)}]";
+            return $"NDimArray of shape ({string.Join(", ", Shape)}), data=[{string.Join(", ", DataArray)}]";
         }
 
 
@@ -198,6 +198,17 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
+        public static NDimArray Random(params int[] shape)
+        {
+            Random rd = new Random();
+            NDimArray res = new NDimArray(shape);
+            for (int i = 0; i < res.NbElements; i++)
+            {
+                res.DataArray[i] = rd.NextDouble();
+            }
+            return res;
+        }
+
         // Sum the element of an array, or sum along the given axis
         //TODO: broadcasting is not supported for more than 2D arrays,
         // so this function doesn't support axis >=2 (only null, 0 or 1)
@@ -279,6 +290,11 @@ namespace NeuralNet.Autodiff
                 }
                 return new NDimArray(newShape, newData);
             }
+            else if (Ndim == 1 && axis == 0)
+            {
+                return new NDimArray(this.DataArray.Sum());
+            }
+
             else if (axis > Ndim - 1)
             {
                 throw new InvalidOperationException($"Can't sum the array along axis {axis}, this array has only {Ndim} dimensions.");
@@ -443,7 +459,7 @@ namespace NeuralNet.Autodiff
             }
 
             NDimArray res = new NDimArray(newShape);
-            // Case where the array as only one dimension (multiple columns and one line)
+            // Case where the array has only one dimension (multiple columns and one line)
             if (currentArray.Ndim == 1 || (currentArray.Ndim == 2 && currentArray.Shape[0] == 1))
             {
                 int nbRowsToAdd = newShape[0];
@@ -463,7 +479,7 @@ namespace NeuralNet.Autodiff
                     }
                 }
             }
-            // Case where the array as 2 dimensions, one column and multiple rows
+            // Case where the array has 2 dimensions, one column and multiple rows
             else if (currentArray.Shape[1] == 1)
             {
                 int nbColToAdd = newShape[1];
@@ -568,38 +584,102 @@ namespace NeuralNet.Autodiff
             //TODO:support ndim matmul (broadcasting)
             if (arr1.Ndim == 2 && arr2.Ndim == 2)
             {
-                if (arr1.Shape[1] == arr2.Shape[0])
-                {
-                    NDimArray res = new NDimArray(new int[] { arr1.Shape[0], arr2.Shape[1] });
-                    double val;
-                    int commonShapeIndex;
-                    int commonShape = arr1.Shape[1];
-                    for (int col = 0; col < res.Shape[0]; col++)
-                    {
-                        for (int row = 0; row < res.Shape[1]; row++)
-                        {
-                            commonShapeIndex = 0;
-                            val = 0;
-                            while (commonShapeIndex < commonShape)
-                            {
-                                val += arr1[col, commonShapeIndex] * arr2[commonShapeIndex, row];
-                                commonShapeIndex++;
-                            }
-                            res[col, row] = val;
-                        }
-                    }
-                    return res;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Can't do matrix multiplication between shapes : (" + string.Join(", ", arr1.Shape) + ") and (" + string.Join(", ", arr2.Shape) + ").");
-                }
+                return MatmulBetween2DArrays(arr1, arr2,false,false);
+            }
+            else if (arr1.Ndim == 1 && arr2.Ndim == 2)
+            {
+                //Substitute arr1 by the same array but as a 2dim array with one row to allow matmul
+                //arr1.Shape = new int[] { 1, arr1.Shape[0] };
+                NDimArray arr1Reshaped = new NDimArray(new int[] { 1, arr1.Shape[0] }, arr1.DataArray);
+                return MatmulBetween2DArrays(arr1Reshaped, arr2,true,false);
+            }
+            else if (arr1.Ndim == 2 && arr2.Ndim == 1)
+            {
+                //reshape arr2 as a 2dim array with one column to allow matmul
+                //Substitute arr2 by the same array but as a 2dim array with one column to allow matmul
+                //arr2.Shape = new int[] { arr2.Shape[0], 1 };
+                NDimArray arr2Reshaped = new NDimArray(new int[] { arr2.Shape[0], 1 }, arr2.DataArray);
+                return MatmulBetween2DArrays(arr1, arr2Reshaped,false,true);
+            }
+            else if (arr1.Ndim == 1 && arr2.Ndim == 1)
+            {
+                //reshape arr1 and arr2 to allow matmul
+                //arr1.Shape = new int[] { 1, arr1.Shape[0] };
+                //arr2.Shape = new int[] { arr2.Shape[0], 1 };
+                NDimArray arr1Reshaped = new NDimArray(new int[] { 1, arr1.Shape[0] }, arr1.DataArray);
+                NDimArray arr2Reshaped = new NDimArray(new int[] { arr2.Shape[0], 1 }, arr2.DataArray);
+                //Substitute the 2 arrays by two 2Dim array with the same data to allow matmul
+                return MatmulBetween2DArrays(arr1Reshaped, arr2Reshaped,true,true);
             }
             else
             {
                 throw new NotImplementedException("Can't do matrix multiplication with other than 2d array, array1 is " + arr1.Ndim + " and array2 is " + arr2.Ndim + ".");
             }
+
+
         }
 
+        //Only works for 2D array (used after for matmul)
+        private static void ReshapeAs1DArray(NDimArray arr, bool isArr1Extended, bool isArr2Extended)
+        {
+
+            // If the two shapes are 1, it's a scalar
+            if (arr.Shape[0] == 1 && arr.Shape[1] == 1)
+            {
+                arr.Shape = new int[] { 1 };
+            }
+            // If the array has been extended to be able to do matmul, remove the added dimension of the result
+            else if (isArr1Extended || isArr2Extended)
+            {
+                if (arr.Shape[0] == 1)
+                {
+                    arr.Shape = new int[] { arr.Shape[1] };
+                }
+                else if (arr.Shape[1] == 1)
+                {
+                    arr.Shape = new int[] { arr.Shape[0] };
+                }
+            }
+
+        }
+
+        private static NDimArray MatmulBetween2DArrays(NDimArray arr1, NDimArray arr2, bool isArr1Extended, bool isArr2Extended)
+        {
+            if (arr1.Shape[1] == arr2.Shape[0])
+            {
+                NDimArray res = new NDimArray(new int[] { arr1.Shape[0], arr2.Shape[1] });
+                double val;
+                int commonShapeIndex;
+                int commonShape = arr1.Shape[1];
+                for (int col = 0; col < res.Shape[0]; col++)
+                {
+                    for (int row = 0; row < res.Shape[1]; row++)
+                    {
+                        commonShapeIndex = 0;
+                        val = 0;
+                        while (commonShapeIndex < commonShape)
+                        {
+                            val += arr1[col, commonShapeIndex] * arr2[commonShapeIndex, row];
+                            commonShapeIndex++;
+                        }
+                        res[col, row] = val;
+                    }
+                }
+                //Reshape in 1D array if possible
+                ReshapeAs1DArray(res, isArr1Extended, isArr2Extended);
+
+
+                return res;
+            }
+            else
+            {
+                throw new InvalidOperationException("Can't do matrix multiplication between shapes : (" + string.Join(", ", arr1.Shape) + ") and (" + string.Join(", ", arr2.Shape) + "). (maybe an array has been automatically reshaped to allow matmul?");
+            }
+        }
+
+
+
     }
+
+
 }
