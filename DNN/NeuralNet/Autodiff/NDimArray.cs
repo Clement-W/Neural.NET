@@ -29,7 +29,14 @@ namespace NeuralNet.Autodiff
         {
             get
             {
-                return _shape;
+                if (_shape != null)
+                {
+                    return (int[])_shape.Clone();
+                }
+                else
+                {
+                    return null;
+                }
             }
             set
             {
@@ -332,12 +339,15 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr.Shape);
             for (int i = 0; i < arr.NbElements; i++)
             {
-                if(arr[i]>=0){
+                if (arr[i] >= 0)
+                {
                     res.DataArray[i] = arr[i];
-                }else{
-                    res.DataArray[i] = 0.01*arr[i];
                 }
-                
+                else
+                {
+                    res.DataArray[i] = 0.01 * arr[i];
+                }
+
             }
             return res;
         }
@@ -368,6 +378,53 @@ namespace NeuralNet.Autodiff
         }
 
 
+        // Return a subpart of the 2D array, from the row at index start, until the row at end index
+        public NDimArray Slice2DArray(int start, int end)
+        {
+
+            if (Ndim > 2)
+            {
+                throw new NotImplementedException("NDimARRAY slice is not implemented yet for more than 2D arrays");
+            }
+            if (start < 0 || start > Shape[0] || end < 0)
+            {
+                throw new InvalidOperationException($"The start index should be in [0,{Shape[0]}] and the end index should be > 0. The given start is {start} and the given end is {end}. ");
+            }
+            if (end - start <= 0)
+            {
+                throw new InvalidOperationException($"Can't slice NDimArray, from {start} to {end} because {end} <= {start}");
+            }
+
+            //slice the array on the first dimension
+            if (end > Shape[0])
+            {
+                end = Shape[0];
+            }
+
+
+
+            int[] newShape = Shape;
+            newShape[0] = end - start;
+
+
+
+            NDimArray res = new NDimArray(newShape);
+            for (int i = 0; start < end; i++)
+            {
+                for (int j = 0; j < Shape[1]; j++)
+                {
+                    res[i, j] = this[start, j];
+                }
+                start++;
+            }
+
+
+
+
+            return res;
+        }
+
+
         //Two dimensions are compatible when they are equal, or one of them is 1
         // https://numpy.org/doc/stable/user/basics.broadcasting.html
         public static bool IsShapesBroadcastable(int[] shape1, int[] shape2)
@@ -390,6 +447,8 @@ namespace NeuralNet.Autodiff
         private static NDimArray ApplyOperationBetweenNDimArray(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
         {
             NDimArray res = new NDimArray(arr1.Shape);
+            Console.WriteLine(arr1);
+            Console.WriteLine(arr2);
             for (int i = 0; i < arr1.NbElements; i++)
             {
                 res.DataArray[i] = operation(arr1.DataArray[i], arr2.DataArray[i]);
@@ -465,7 +524,8 @@ namespace NeuralNet.Autodiff
 
         }
 
-        // Warning : Messy code here
+        // Extend a 2D Array to be broadcast an operation, for example, if we want
+        // to do (2,3) + (2,1), this method will be used to extend (2,1) into (2,3)
         public static NDimArray Extend2DArrayByShape(NDimArray currentArray, int[] newShape)
         {
             if (currentArray.Shape.SequenceEqual(newShape))
@@ -551,7 +611,8 @@ namespace NeuralNet.Autodiff
             }
             else
             {
-                throw new InvalidOperationException("Can't apply this operation between those ndimarray, dimensions are " + string.Join(", ", arr1.Shape) + " and " + string.Join(", ", arr2.Shape) + " which is incompatible.");
+                //Uses Diagnostics.StackTrace to get the name of the parent method that called this one.
+                throw new InvalidOperationException($"Can't apply {(new System.Diagnostics.StackTrace()).GetFrame(1).GetMethod().Name} between those ndimarray, dimensions are " + string.Join(", ", arr1.Shape) + " and " + string.Join(", ", arr2.Shape) + " which is incompatible.");
             }
         }
 
@@ -563,10 +624,12 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(addition, arr1, arr2);
         }
 
-        public static NDimArray operator +(double scalar,NDimArray arr2){
+        public static NDimArray operator +(double scalar, NDimArray arr2)
+        {
             return new NDimArray(scalar) + arr2;
         }
-        public static NDimArray operator +(NDimArray arr1,double scalar){
+        public static NDimArray operator +(NDimArray arr1, double scalar)
+        {
             return arr1 + new NDimArray(scalar);
         }
 
@@ -587,10 +650,12 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(substract, arr1, arr2);
         }
 
-        public static NDimArray operator -(double scalar,NDimArray arr2){
+        public static NDimArray operator -(double scalar, NDimArray arr2)
+        {
             return new NDimArray(scalar) - arr2;
         }
-        public static NDimArray operator -(NDimArray arr1,double scalar){
+        public static NDimArray operator -(NDimArray arr1, double scalar)
+        {
             return arr1 - new NDimArray(scalar);
         }
 
@@ -601,10 +666,12 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(mul, arr1, arr2);
         }
 
-        public static NDimArray operator *(double scalar,NDimArray arr2){
+        public static NDimArray operator *(double scalar, NDimArray arr2)
+        {
             return new NDimArray(scalar) * arr2;
         }
-        public static NDimArray operator *(NDimArray arr1,double scalar){
+        public static NDimArray operator *(NDimArray arr1, double scalar)
+        {
             return arr1 * new NDimArray(scalar);
         }
 
@@ -615,10 +682,12 @@ namespace NeuralNet.Autodiff
             return ApplyOperation(truediv, arr1, arr2);
         }
 
-        public static NDimArray operator /(double scalar,NDimArray arr2){
+        public static NDimArray operator /(double scalar, NDimArray arr2)
+        {
             return new NDimArray(scalar) / arr2;
         }
-        public static NDimArray operator /(NDimArray arr1,double scalar){
+        public static NDimArray operator /(NDimArray arr1, double scalar)
+        {
             return arr1 / new NDimArray(scalar);
         }
 
@@ -627,14 +696,14 @@ namespace NeuralNet.Autodiff
             //TODO:support ndim matmul (broadcasting)
             if (arr1.Ndim == 2 && arr2.Ndim == 2)
             {
-                return MatmulBetween2DArrays(arr1, arr2,false,false);
+                return MatmulBetween2DArrays(arr1, arr2, false, false);
             }
             else if (arr1.Ndim == 1 && arr2.Ndim == 2)
             {
                 //Substitute arr1 by the same array but as a 2dim array with one row to allow matmul
                 //arr1.Shape = new int[] { 1, arr1.Shape[0] };
                 NDimArray arr1Reshaped = new NDimArray(new int[] { 1, arr1.Shape[0] }, arr1.DataArray);
-                return MatmulBetween2DArrays(arr1Reshaped, arr2,true,false);
+                return MatmulBetween2DArrays(arr1Reshaped, arr2, true, false);
             }
             else if (arr1.Ndim == 2 && arr2.Ndim == 1)
             {
@@ -642,7 +711,7 @@ namespace NeuralNet.Autodiff
                 //Substitute arr2 by the same array but as a 2dim array with one column to allow matmul
                 //arr2.Shape = new int[] { arr2.Shape[0], 1 };
                 NDimArray arr2Reshaped = new NDimArray(new int[] { arr2.Shape[0], 1 }, arr2.DataArray);
-                return MatmulBetween2DArrays(arr1, arr2Reshaped,false,true);
+                return MatmulBetween2DArrays(arr1, arr2Reshaped, false, true);
             }
             else if (arr1.Ndim == 1 && arr2.Ndim == 1)
             {
@@ -652,7 +721,7 @@ namespace NeuralNet.Autodiff
                 NDimArray arr1Reshaped = new NDimArray(new int[] { 1, arr1.Shape[0] }, arr1.DataArray);
                 NDimArray arr2Reshaped = new NDimArray(new int[] { arr2.Shape[0], 1 }, arr2.DataArray);
                 //Substitute the 2 arrays by two 2Dim array with the same data to allow matmul
-                return MatmulBetween2DArrays(arr1Reshaped, arr2Reshaped,true,true);
+                return MatmulBetween2DArrays(arr1Reshaped, arr2Reshaped, true, true);
             }
             else
             {

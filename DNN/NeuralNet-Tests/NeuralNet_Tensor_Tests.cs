@@ -463,8 +463,37 @@ namespace NeuralNet.UnitTests
 
                 x -= deltaX;
             }
-            Assert.True(Math.Round(x.Sum().Data.DataArray[0])==0);
+            Assert.True(Math.Round(x.Sum().Data.DataArray[0]) == 0);
         }
+
+        [Fact]
+        public void Tensor_Test_Simple_Slice()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Tensor t1 = new Tensor(a1);
+            Tensor t2 = t1.Slice2DTensor(2, 4);
+
+            Assert.True(t2.Shape.SequenceEqual(new int[] { 2, 3 }));
+            Assert.True(t2.Data.DataArray.SequenceEqual(new double[] { 7, 8, 9, 10, 11, 12 }));
+
+        }
+
+        
+        [Fact]
+        public void Tensor_Test_Slice_Backward()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Tensor t1 = new Tensor(a1,requiresGrad:true);
+            Tensor t2 = t1.Slice2DTensor(2, 4); // contain 7, 8, 9, 10, 11, 12
+
+            Tensor grad = new Tensor(requiresGrad:false,new int[] { 2, 3 }, 1,1,1,1,1,1);  
+     
+            t2.Backward(grad);     
+
+                  
+        }
+
+
 
 
     }

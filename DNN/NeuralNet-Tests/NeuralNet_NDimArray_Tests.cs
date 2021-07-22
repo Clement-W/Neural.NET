@@ -787,6 +787,71 @@ namespace NeuralNet.UnitTests
 
         }
 
+        [Fact]
+        public void NDimArray_Test_Simple_Slice()
+        {
+            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            NDimArray a2 = a1.Slice2DArray(2,4);
+
+            Assert.True(a2.Shape.SequenceEqual(new int[]{2,3}));
+            Assert.True(a2.DataArray.SequenceEqual(new double[]{7,8,9,10,11,12}));            
+        }
+
+        [Fact]
+        public void NDimArray_Test_Slice_Start_0()
+        {
+            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            NDimArray a2 = a1.Slice2DArray(0,1);
+
+            Assert.True(a2.Shape.SequenceEqual(new int[]{1,3}));
+            Assert.True(a2.DataArray.SequenceEqual(new double[]{1,2,3}));            
+        }
+
+        [Fact]
+        public void NDimArray_Test_Slice_End_OutOfBounds()
+        {
+            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            NDimArray a2 = a1.Slice2DArray(3,6);
+
+            Assert.True(a2.Shape.SequenceEqual(new int[]{1,3}));
+            Assert.True(a2.DataArray.SequenceEqual(new double[]{10,11,12}));            
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Slice_Start_OutOfBounds()
+        {
+            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(-1,6));
+            
+        }
+
+        [Fact]
+        public void NDimArray_Test_Slice_Start_Equal_End()
+        {
+            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(2,2));
+            
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Slice_Start_Greater_Than_End()
+        {
+            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(3,2));
+            
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Slice_3DArray_NotSupported()
+        {
+            NDimArray a1 = new NDimArray(new int[]{2,2,3},1,2,3,4,5,6,7,8,9,10,11,12);
+            Assert.Throws<NotImplementedException>(() => a1.Slice2DArray(3,2));
+            
+        }
+
 
     }
 }

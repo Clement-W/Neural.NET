@@ -11,7 +11,7 @@ namespace NeuralNet.Autodiff
         {
             get
             {
-                return _data;
+                return new NDimArray(_data);
             }
             set
             {
@@ -455,9 +455,46 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        public Tensor Slice2DTensor(int start, int end)
+        {
+            NDimArray data = Data.Slice2DArray(start, end);
+            TensorDependency[] dependencies = null;
+
+            if (RequiresGrad)
+            {
+                NDimArray GradientFunction(NDimArray incomingGrad)
+                {
+                    /*
+                    Copy the gradients of the keeped dims into the new gradient array, but set every
+                    gradient that have not been keeped to 0
+                    */
+ 
+                    NDimArray newGrad = NDimArray.Zeros_like(this.Data);
+
+                    //Copy the gradient
+                    if (end > Shape[0])
+                    {
+                        end = Shape[0];
+                    }
+                    for(int i = 0;start<end;i++){
+                        for(int j =0;j<incomingGrad.Shape[1];j++){
+                            newGrad[start,j] = incomingGrad[i,j];
+                        }
+                        start++;
+                    }
+       
+
+                    return newGrad;
+                }
+                dependencies = new TensorDependency[] { new TensorDependency(this, GradientFunction) };
+            }
+
+            return new Tensor(data, RequiresGrad, dependencies);
+        }
+
 
 
         //TODO: add pow operator
-        //TODO: add array slice 
     }
+
 }
