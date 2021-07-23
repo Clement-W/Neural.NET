@@ -10,9 +10,7 @@ namespace Xor
     {
         static void Main(string[] args)
         {
-
             XorExample2();
-
         }
 
         // This example uses a class to create the model
@@ -36,7 +34,6 @@ namespace Xor
             modelTrainer.Train();
             modelTrainer.Evaluate(xData, yData);
         }
-
 
         // This example uses Sequential to define the model
         public static void XorExample2()
@@ -77,7 +74,6 @@ namespace Xor
 
     class Model : Module
     {
-
 
         public LinearLayer Linear1 { get; set; }
         public LinearLayer Linear2 { get; set; }
