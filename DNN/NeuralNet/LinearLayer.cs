@@ -9,9 +9,14 @@ namespace NeuralNet
 
         public Parameter Biases{get;set;}
 
-        public LinearLayer(int input_size,int output_size){
-            this.Weights = new Parameter(input_size,output_size); // (input_size,output_size) matrix
-            this.Biases = new Parameter(output_size); //output_size = nb of neurons
+        public int InputSize{get;}
+        public int OutputSize{get;}
+
+        public LinearLayer(int inputSize,int outputSize){
+            InputSize = inputSize;
+            OutputSize = outputSize;
+            this.Weights = new Parameter(inputSize,outputSize); // (inputSize,outputSize) matrix
+            this.Biases = new Parameter(outputSize); //outputSize = nb of neurons
         }
 
         public Tensor Forward(Tensor inputs){

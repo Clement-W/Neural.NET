@@ -11,27 +11,53 @@ namespace NeuralNet
         public IEnumerable<Parameter> Parameters()
         { //TODO: This method is not efficient at all. Would it be better with an array instead of using Reflection ?
 
-            PropertyInfo[] properties = this.GetType().GetProperties();
-            // Foreach of the properties, get the Parameter and Module ones to return every Parameter properties
-            foreach (PropertyInfo property in properties)
+            // If the module is a sequential class, get the parameters in it's list of blocks
+            if (this.GetType() == typeof(Sequential))
             {
-                if (property.PropertyType == typeof(Parameter))
+                foreach (IBlock block in (this as Sequential).Blocks)
                 {
-                    yield return property.GetValue(this) as Parameter;
-                }
-                else if (property.PropertyType.IsSubclassOf(typeof(Module)) || property.PropertyType == typeof(Module))
-                {
-                    IEnumerable<Parameter> moduleParamereters = (property.GetValue(this) as Module).Parameters();
-                    if (moduleParamereters != null)
+                    // If the block is a module, get it's parameters
+                    if (block.GetType().IsSubclassOf(typeof(Module)) || block.GetType() == typeof(Module))
                     {
-                        foreach (Parameter param in moduleParamereters)
+                        IEnumerable<Parameter> submoduleParameters = (block as Module).Parameters();
+                        if (submoduleParameters != null)
                         {
-                            yield return param;
+                            foreach (Parameter param in submoduleParameters)
+                            {
+                                yield return param;
+                            }
+                        }
+                    }
+                }
+            }
+            //else, get the parameters in it's properties
+            else
+            {
+
+                PropertyInfo[] properties = this.GetType().GetProperties();
+                // Foreach of the properties, get the Parameter and Module properties to return every Parameter properties
+                foreach (PropertyInfo property in properties)
+                {
+                    if (property.PropertyType == typeof(Parameter))
+                    {
+                        yield return property.GetValue(this) as Parameter;
+                    }
+                    else if (property.PropertyType.IsSubclassOf(typeof(Module)) || property.PropertyType == typeof(Module))
+                    {
+                        // Return the parameters of the module by calling Parameters() on it
+                        IEnumerable<Parameter> moduleParamereters = (property.GetValue(this) as Module).Parameters();
+                        if (moduleParamereters != null)
+                        {
+                            foreach (Parameter param in moduleParamereters)
+                            {
+                                yield return param;
+                            }
                         }
                     }
                 }
             }
         }
+
 
         // Set the gradient of every parameters to 0
         public void ZeroGrad()
@@ -44,9 +70,10 @@ namespace NeuralNet
 
         public override string ToString()
         {
-            string ret="Parameters : \n";
-            foreach(Parameter param in this.Parameters()){
-                ret+= param.ToString() + "\n";
+            string ret = "Parameters : \n";
+            foreach (Parameter param in this.Parameters())
+            {
+                ret += param.ToString() + "\n";
             }
             return ret;
         }
