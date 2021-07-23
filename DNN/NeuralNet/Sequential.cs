@@ -8,7 +8,7 @@ namespace NeuralNet
             Blocks = blocks;
         }
 
-        public Tensor Predict(Tensor inputs){
+        public override Tensor Predict(Tensor inputs){
             Tensor output = inputs;
             foreach(IBlock block in Blocks){
                 output = block.Forward(output);

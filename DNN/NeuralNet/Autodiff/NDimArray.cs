@@ -239,6 +239,7 @@ namespace NeuralNet.Autodiff
             }
         }
 
+
         // Sum the element of an array, or sum along the given axis
         //TODO: broadcasting is not supported for more than 2D arrays,
         // so this function doesn't support axis >=2 (only null, 0 or 1)
@@ -362,13 +363,13 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr.Shape);
             for (int i = 0; i < arr.NbElements; i++)
             {
-                if (arr[i] >= 0)
+                if (arr.DataArray[i] >= 0)
                 {
-                    res.DataArray[i] = arr[i];
+                    res.DataArray[i] = arr.DataArray[i];
                 }
                 else
                 {
-                    res.DataArray[i] = 0.01 * arr[i];
+                    res.DataArray[i] = 0.01 * arr.DataArray[i];
                 }
 
             }
@@ -447,7 +448,7 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
-        // Return evenly spaced values within a given interval.
+        // Return evenly spaced values within a given interval (1D array).
         public static NDimArray Arange(int start, int end, int step = 1)
         {
             if (start < 0 || start > end || end < 0)
@@ -479,6 +480,38 @@ namespace NeuralNet.Autodiff
             }
 
             return res;
+        }
+
+
+        // Get the indexes of the max values along the rows of a 2D array
+        public int[] GetIndexesOfMaxValuesInRowsOf2DArray()
+        {
+            if (Ndim != 2)
+            {
+                throw new NotImplementedException("This method is not yet implemented yet for other dim than 2Dim arrays");
+            }
+
+            // Return the list of max indexes along each column (the reduced dim corresponds to the rows)
+            int[] res = new int[Shape[0]];
+            double max=DataArray[0];
+            int maxIndex= 0;
+            for (int i = 0; i < Shape[0]; i++)
+            {
+                for (int j = 0; j < Shape[1]; j++)
+                {
+                    if(this[i,j] > max){
+                        max = this[i,j];
+                        maxIndex = j;
+                    }
+                }
+                res[i] = maxIndex;
+
+                max = double.MinValue;
+                maxIndex = -1;
+            }
+
+            return res;
+
         }
 
 

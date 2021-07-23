@@ -1,6 +1,7 @@
 using System.Reflection;
 using System;
 using System.Collections.Generic;
+using NeuralNet.Autodiff;
 namespace NeuralNet
 {
     // A module represents a collection of Parameters
@@ -76,6 +77,10 @@ namespace NeuralNet
                 ret += param.ToString() + "\n";
             }
             return ret;
+        }
+
+        public virtual Tensor Predict(Tensor inputs){
+            throw new NotImplementedException("This method needs to be implemented for a defined model.");
         }
     }
 

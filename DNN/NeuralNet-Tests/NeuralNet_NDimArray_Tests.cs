@@ -683,10 +683,10 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void NDimArray_Test_LeakyReLu()
         {
-            NDimArray a1 = new NDimArray(new int[] { 3 }, -1, 0, 3);
+            NDimArray a1 = new NDimArray(new int[] {2, 3}, -1, 0, 3,-5,6,4);
             NDimArray a2 = NDimArray.LeakyRelu(a1);
 
-            Assert.True(a2.DataArray.SequenceEqual(new double[] { -0.01, 0, 3 }));
+            Assert.True(a2.DataArray.SequenceEqual(new double[] { -0.01, 0, 3,-0.05,6,4 }));
         }
 
 
@@ -916,6 +916,15 @@ namespace NeuralNet.UnitTests
             //Console.WriteLine(arr2);
         }
 
+        [Fact]
+        public void NDimArray_Test_Get_Max_Index(){
+            NDimArray a = new NDimArray(new int[]{2,3},-3,3,4,-9,10,5);
+            int[] maxIndexes = a.GetIndexesOfMaxValuesInRowsOf2DArray();
+            Console.WriteLine(string.Join(", ",maxIndexes));
+            Assert.True(maxIndexes.SequenceEqual(new int[]{2,1}));
+        }
+
+  
 
     }
 }
