@@ -68,8 +68,15 @@ namespace NeuralNet.Autodiff
                 {
                     if (DataArray == null)
                     {
-                        // If the data array is null, return the future data length by multitplying every shapes
-                        return Shape.Aggregate(1, (a, b) => a * b);
+                        if (Shape.Length == 0)
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            // If the data array is null, return the future data length by multitplying every shapes
+                            return Shape.Aggregate(1, (a, b) => a * b);
+                        }
                     }
                     else
                     {
@@ -214,6 +221,22 @@ namespace NeuralNet.Autodiff
                 res.DataArray[i] = rd.NextDouble();
             }
             return res;
+        }
+
+        // Shuffle the data of the current array
+        public void Shuffle()
+        {
+            Random rd = new Random();
+            int nbShuffled = this.DataArray.Length;
+            int index;
+            double tmp;
+            while (nbShuffled > 1)
+            {
+                index = rd.Next(nbShuffled--);
+                tmp = DataArray[nbShuffled];
+                DataArray[nbShuffled] = DataArray[index];
+                DataArray[index] = tmp;
+            }
         }
 
         // Sum the element of an array, or sum along the given axis
@@ -424,6 +447,40 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
+        // Return evenly spaced values within a given interval.
+        public static NDimArray Arange(int start, int end, int step = 1)
+        {
+            if (start < 0 || start > end || end < 0)
+            {
+                throw new ArgumentException($"Given start index ({start}) must be >=0 and < end, and the end index ({end}) must be > 0");
+            }
+            if (end == start)
+            {
+                return new NDimArray(new int[] { });
+            }
+            if (step > end - start)
+            {
+                return new NDimArray(start);
+            }
+
+
+            // (end - start)/step rounded up
+            int nbValues = Convert.ToInt16(Math.Ceiling((double)(end - start) / (double)step));
+
+
+            NDimArray res = new NDimArray(new int[] { nbValues });
+
+
+            int val = start - step;
+            for (int i = 0; i < nbValues; i++)
+            {
+                val = val + step;
+                res.DataArray[i] = val;
+            }
+
+            return res;
+        }
+
 
         //Two dimensions are compatible when they are equal, or one of them is 1
         // https://numpy.org/doc/stable/user/basics.broadcasting.html
@@ -447,8 +504,6 @@ namespace NeuralNet.Autodiff
         private static NDimArray ApplyOperationBetweenNDimArray(Func<double, double, double> operation, NDimArray arr1, NDimArray arr2)
         {
             NDimArray res = new NDimArray(arr1.Shape);
-            Console.WriteLine(arr1);
-            Console.WriteLine(arr2);
             for (int i = 0; i < arr1.NbElements; i++)
             {
                 res.DataArray[i] = operation(arr1.DataArray[i], arr2.DataArray[i]);

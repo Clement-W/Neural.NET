@@ -490,7 +490,6 @@ namespace NeuralNet.UnitTests
      
             t2.Backward(grad);     
 
-                  
         }
 
 

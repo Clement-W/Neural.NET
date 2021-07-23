@@ -16,32 +16,56 @@ namespace Xor
 
             Optimizer optimizer = new SGD(0.03);
             int nbEpochs = 1000;
+            int batch_size = 3;
 
             Console.WriteLine(model);
 
             //TODO: implement slice for tensor and ndarray to do batching
+            NDimArray startsIndexes = NDimArray.Arange(0,xData.Shape[0],batch_size);
+
             
             DateTime t = DateTime.Now;
+            double epochLoss;
+            int endIndex;
+            Tensor inputs;
+            Tensor predicted;
+            Tensor actual;
+            Tensor loss;
             for (int epoch = 0; epoch < nbEpochs; epoch++)
             {
-                // Set the parameter's gradient to 0
-                model.ZeroGrad();
+                epochLoss = 0;
+                startsIndexes.Shuffle();
+   
+                    
+                foreach(int startIndex in startsIndexes.DataArray){
+     
+                    endIndex = startIndex + batch_size;      
 
-                // Predict with input data
-                Tensor predicted = model.Predict(xData);
+                    // Set the parameter's gradient to 0
+                    model.ZeroGrad();
 
-                // Compute the loss with MSE (compare predicted versus actual)
-                Tensor loss = Function.MSE(predicted,YData);
+                    // Get inputs for this batch
+                    inputs = xData.Slice2DTensor(startIndex,endIndex);
+                    // Get actual outputs for this batch
+                    actual = YData.Slice2DTensor(startIndex,endIndex);
 
-                // Backpropagate the error through gradients
-                loss.Backward();
+                    // Predict with input data
+                    predicted = model.Predict(inputs);                    
 
-                // Update network parameters with the SGD optimizer
-                optimizer.Step(model);
+                    // Compute the loss with MSE (compare predicted versus actual)
+                    loss = Function.MSE(predicted,actual);
 
-                Console.WriteLine($"Epoch {epoch} : loss = {loss.Data.DataArray[0]}.");
+                    // Backpropagate the error through gradients
+                    loss.Backward();
+                    epochLoss+=loss.Data.DataArray[0];
+
+                    // Update network parameters with the SGD optimizer
+                    optimizer.Step(model);
+                }
+
+                Console.WriteLine($"Epoch {epoch} : loss = {epochLoss}.");
             }
-            Console.WriteLine((DateTime.Now-t).Milliseconds);
+            Console.WriteLine("Training time : " + (DateTime.Now-t).Milliseconds);
 
 
 

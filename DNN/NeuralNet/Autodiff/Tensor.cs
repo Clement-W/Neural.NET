@@ -493,7 +493,6 @@ namespace NeuralNet.Autodiff
         }
 
 
-
         //TODO: add pow operator
     }
 

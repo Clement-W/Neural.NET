@@ -852,6 +852,70 @@ namespace NeuralNet.UnitTests
             
         }
 
+        [Fact]
+        public void NDimArray_Test_Simple_Arange()
+        {
+            NDimArray a1 = NDimArray.Arange(0,10);
+            Assert.True(a1.Shape.SequenceEqual(new int[]{10}));
+            Assert.True(a1.DataArray.SequenceEqual(new double[]{0,1,2,3,4,5,6,7,8,9}));
+        }
+        [Fact]
+        public void NDimArray_Test_Arange_Step_Equal_2()
+        {
+            NDimArray a1 = NDimArray.Arange(0,10,2);
+            Assert.True(a1.DataArray.SequenceEqual(new double[]{0,2,4,6,8}));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Arange_Big_Step()
+        {
+            NDimArray a1 = NDimArray.Arange(0,10,5);
+            Assert.True(a1.DataArray.SequenceEqual(new double[]{0,5}));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Arange_Bigger_Step()
+        {
+            NDimArray a1 = NDimArray.Arange(0,10,11);
+            Assert.True(a1.DataArray.SequenceEqual(new double[]{0}));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Arange_Start_Different_0()
+        {
+            NDimArray a1 = NDimArray.Arange(3,10,2);
+            Assert.True(a1.DataArray.SequenceEqual(new double[]{3,5,7,9}));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Arange_Start_EqualEnd()
+        {
+            NDimArray a1 = NDimArray.Arange(10,10);
+            Assert.True(a1.DataArray.SequenceEqual(new double[]{}));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Arange_Start_Greater_Than_End()
+        {
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(13,10,2));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Arange_Start_End_Out_of_Bounds()
+        {
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(13,-8,2));
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(-7,10,2));
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(-7,-10));
+        }
+
+
+        [Fact]
+        public void NDimArray_Test_Shuffle(){
+            //Console.WriteLine(arr2);
+            arr2.Shuffle();
+            //Console.WriteLine(arr2);
+        }
+
 
     }
 }
