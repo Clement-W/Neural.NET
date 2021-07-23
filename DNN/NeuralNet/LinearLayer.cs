@@ -3,7 +3,7 @@ namespace NeuralNet
 {
     // Linear layer of a neural net, apply a linear transformation to the incoming data
     // y = input @ W + b
-    public class LinearLayer : Module
+    public class LinearLayer : Module,IBlock
     {
         public Parameter Weights{get;set;}
 

@@ -1,5 +1,7 @@
 using Xunit;
 using NeuralNet.Autodiff;
+using NeuralNet.Functions;
+using NeuralNet.Loss;
 
 using System;
 using System.Linq;
@@ -13,7 +15,7 @@ namespace NeuralNet.UnitTests
         public void Function_Test_Tanh()
         {
             Tensor t = new Tensor(requiresGrad:true,1,2,3);
-            Tensor tanh = Function.Tanh(t);
+            Tensor tanh = new Tanh().Forward(t);
 
             Assert.True(tanh.Data.DataArray.SequenceEqual(NDimArray.Tanh(t.Data).DataArray));
 
@@ -29,7 +31,7 @@ namespace NeuralNet.UnitTests
         public void Function_Test_LeakyRelu()
         {
             Tensor t = new Tensor(requiresGrad:true,1,-2,0);
-            Tensor lrelu = Function.LeakyRelu(t);
+            Tensor lrelu = new LeakyRelu().Forward(t);
 
             Assert.True(lrelu.Data.DataArray.SequenceEqual(NDimArray.LeakyRelu(t.Data).DataArray));
 
@@ -44,7 +46,7 @@ namespace NeuralNet.UnitTests
         public void Function_Test_Sigmoid()
         {
             Tensor t = new Tensor(requiresGrad:true,1,2,3);
-            Tensor sigmoid = Function.Sigmoid(t);
+            Tensor sigmoid = new Sigmoid().Forward(t);
             Assert.True(sigmoid.Data.DataArray.SequenceEqual((1/(1+NDimArray.Exp(-t.Data))).DataArray));
 
             Tensor grad = new Tensor(2,2,2);
@@ -60,7 +62,7 @@ namespace NeuralNet.UnitTests
             Tensor actual = new Tensor(requiresGrad:true,1,2,3);
             Tensor predicted = new Tensor(requiresGrad:true,1.1,2.1,3.1);
             
-            Tensor mse = Function.MSE(predicted,actual);
+            Tensor mse = new MSE().ComputeLoss(predicted,actual);
             Assert.True(mse.Data.DataArray.SequenceEqual(((predicted-actual)*(predicted-actual)).Sum().Data.DataArray));
 
         }

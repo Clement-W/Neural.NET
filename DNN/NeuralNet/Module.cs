@@ -9,7 +9,7 @@ namespace NeuralNet
 
         // Return every properties of type Parameter or Module
         public IEnumerable<Parameter> Parameters()
-        { //TODO: Is this method efficient ? Would it be better with an array instead of using Reflection ?
+        { //TODO: This method is not efficient at all. Would it be better with an array instead of using Reflection ?
 
             PropertyInfo[] properties = this.GetType().GetProperties();
             // Foreach of the properties, get the Parameter and Module ones to return every Parameter properties

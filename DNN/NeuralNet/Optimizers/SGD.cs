@@ -1,5 +1,5 @@
 using System;
-namespace NeuralNet
+namespace NeuralNet.Optimizers
 {
     public class SGD : Optimizer
     {

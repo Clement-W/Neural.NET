@@ -1,5 +1,5 @@
 using NeuralNet.Autodiff;
-namespace NeuralNet
+namespace NeuralNet.Optimizers
 {
     public abstract class Optimizer
     {

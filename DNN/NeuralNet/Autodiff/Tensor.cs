@@ -78,6 +78,19 @@ namespace NeuralNet.Autodiff
         public Tensor(params double[] data)
         : this(new NDimArray(data)) { }
 
+        //TODO: test
+        public double this[params int[] indexes]
+        {
+            get
+            {
+                return Data[indexes];
+            }
+            set
+            {
+                _data[indexes] = value;
+            }
+        }
+
         public override string ToString()
         {
             return $"Tensor, shape=({string.Join(", ", Shape)}), requiresGradient = {RequiresGrad} ,data = ({this.Data})";

@@ -1,6 +1,9 @@
 ﻿using System;
 using NeuralNet;
 using NeuralNet.Autodiff;
+using NeuralNet.Functions;
+using NeuralNet.Loss;
+using NeuralNet.Optimizers;
 namespace Xor
 {
     class XorExample
@@ -31,6 +34,7 @@ namespace Xor
             Tensor predicted;
             Tensor actual;
             Tensor loss;
+            ILoss MSE = new MSE();
             for (int epoch = 0; epoch < nbEpochs; epoch++)
             {
                 epochLoss = 0;
@@ -53,7 +57,7 @@ namespace Xor
                     predicted = model.Predict(inputs);                    
 
                     // Compute the loss with MSE (compare predicted versus actual)
-                    loss = Function.MSE(predicted,actual);
+                    loss = MSE.ComputeLoss(predicted,actual);
 
                     // Backpropagate the error through gradients
                     loss.Backward();
@@ -80,11 +84,17 @@ namespace Xor
         public LinearLayer Linear2 { get; set; }
         public LinearLayer Linear3 { get; set; }
 
+        public Tanh Activation1{get;set;}
+        public Tanh Activation2{get;set;}
+
         public Model()
         {
             Linear1 = new LinearLayer(2, 5);
+            Activation1 = new Tanh();
             Linear2 = new LinearLayer(5, 5);
+            Activation2 = new Tanh();
             Linear3 = new LinearLayer(5, 2);
+
 
         }
 
@@ -92,9 +102,9 @@ namespace Xor
         {
             Tensor output;
             output = Linear1.Forward(inputs);
-            output = Function.Tanh(output);
+            output = Activation1.Forward(output);
             output = Linear2.Forward(output);
-            output = Function.Tanh(output);
+            output = Activation2.Forward(output);
             output = Linear3.Forward(output);
             return output;
         }
