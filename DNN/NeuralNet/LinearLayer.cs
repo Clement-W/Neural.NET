@@ -15,12 +15,13 @@ namespace NeuralNet
         public LinearLayer(int inputSize,int outputSize){
             InputSize = inputSize;
             OutputSize = outputSize;
-            this.Weights = new Parameter(inputSize,outputSize); // (inputSize,outputSize) matrix
-            this.Biases = new Parameter(outputSize); //outputSize = nb of neurons
+            this.Weights = Parameter.InitializeWeights(inputSize,outputSize); // (inputSize,outputSize) matrix
+            this.Biases = Parameter.InitializeBiases(outputSize); //outputSize = nb of neurons
         }
 
         public Tensor Forward(Tensor inputs){
             return Tensor.Matmul(inputs,Weights) + Biases;
         }
+
     }
 }

@@ -223,6 +223,18 @@ namespace NeuralNet.Autodiff
             return res;
         }
 
+        public static NDimArray Random(int[] shape,double inf, double sup)
+        {
+            Random rd = new Random();
+            NDimArray res = new NDimArray(shape);
+            for (int i = 0; i < res.NbElements; i++)
+            {
+                // Generate random number between inf and sup
+                res.DataArray[i] = rd.NextDouble() * (sup-inf) + inf; 
+            }
+            return res;
+        }
+
         // Shuffle the data of the current array
         public void Shuffle()
         {
