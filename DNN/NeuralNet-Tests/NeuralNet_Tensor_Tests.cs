@@ -47,8 +47,8 @@ namespace NeuralNet.UnitTests
             Tensor t6 = new Tensor(requiresGrad: true, 1, 2, 3, 4, 5);
 
             Assert.True(t4.Grad.Shape.SequenceEqual(new int[] { 3, 2 }));
-            Assert.True(t2.NDim == 3);
-            Assert.True(t5.NDim == 2);
+            Assert.True(t2.Ndim == 3);
+            Assert.True(t5.Ndim == 2);
             Assert.True(t6.Data.NbElements == 5);
             Assert.True(t4.Grad.Data.DataArray.SequenceEqual(new double[] { 0, 0, 0, 0, 0, 0 }));
             Assert.True(t1.Grad == null);
@@ -491,6 +491,16 @@ namespace NeuralNet.UnitTests
             t2.Backward(grad);     
 
         }
+
+        [Fact]
+        public void Tensor_Test_Get_Predictions(){
+            Tensor a = new Tensor(requiresGrad:true,new int[]{2,3},-3,3,4,-9,10,5);
+            int[] maxIndexes = a.GetPredictionsIndexes();
+            Console.WriteLine(string.Join(", ",maxIndexes));
+            Assert.True(maxIndexes.SequenceEqual(new int[]{2,1}));
+        }
+
+
 
 
 

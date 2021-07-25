@@ -1,7 +1,7 @@
 using NeuralNet.Autodiff;
 namespace NeuralNet
 {
-    public class Sequential : Module
+    public class Sequential : Model
     {
         public IBlock[] Blocks{get;private set;}
         public Sequential(params IBlock[] blocks){

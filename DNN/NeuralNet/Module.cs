@@ -79,9 +79,7 @@ namespace NeuralNet
             return ret;
         }
 
-        public virtual Tensor Predict(Tensor inputs){
-            throw new NotImplementedException("This method needs to be implemented for a defined model.");
-        }
+        
     }
 
 

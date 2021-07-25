@@ -35,7 +35,7 @@ namespace NeuralNet.Autodiff
             }
         }
 
-        public int NDim
+        public int Ndim
         {
             get
             {
@@ -223,7 +223,7 @@ namespace NeuralNet.Autodiff
             //Console.WriteLine($"grad before broadcast with keep dims : {string.Join(", ", gradient.Shape)} ; {gradient}");
             //Console.WriteLine(string.Join(", ",tensor.Data.DataArray));
 
-            for (int i = 0; i < tensor.NDim; i++)
+            for (int i = 0; i < tensor.Ndim; i++)
             {
                 // If the dimension is equal to 1, it means that the operation is broadcasted along this axis
                 // If it's a scalar, it doesn't change anything 
@@ -503,6 +503,38 @@ namespace NeuralNet.Autodiff
             }
 
             return new Tensor(data, RequiresGrad, dependencies);
+        }
+
+        // Get the indexes of the max values along the rows of a 2D array
+        public int[] GetPredictionsIndexes()
+        {
+            if (Ndim != 2)
+            {
+                throw new NotImplementedException("This method is not yet implemented yet for other dim than 2Dim arrays");
+            }
+
+            // Return the list of max indexes along each column (the reduced dim corresponds to the rows)
+            int[] res = new int[Shape[0]];
+            double max = Data.DataArray[0];
+            int maxIndex = 0;
+            for (int i = 0; i < Shape[0]; i++)
+            {
+                for (int j = 0; j < Shape[1]; j++)
+                {
+                    if (this[i, j] > max)
+                    {
+                        max = this[i, j];
+                        maxIndex = j;
+                    }
+                }
+                res[i] = maxIndex;
+
+                max = double.MinValue;
+                maxIndex = -1;
+            }
+
+            return res;
+
         }
 
 

@@ -916,13 +916,7 @@ namespace NeuralNet.UnitTests
             //Console.WriteLine(arr2);
         }
 
-        [Fact]
-        public void NDimArray_Test_Get_Max_Index(){
-            NDimArray a = new NDimArray(new int[]{2,3},-3,3,4,-9,10,5);
-            int[] maxIndexes = a.GetIndexesOfMaxValuesInRowsOf2DArray();
-            Console.WriteLine(string.Join(", ",maxIndexes));
-            Assert.True(maxIndexes.SequenceEqual(new int[]{2,1}));
-        }
+     
 
   
 

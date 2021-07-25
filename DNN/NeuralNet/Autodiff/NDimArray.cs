@@ -483,37 +483,7 @@ namespace NeuralNet.Autodiff
         }
 
 
-        // Get the indexes of the max values along the rows of a 2D array
-        public int[] GetIndexesOfMaxValuesInRowsOf2DArray()
-        {
-            if (Ndim != 2)
-            {
-                throw new NotImplementedException("This method is not yet implemented yet for other dim than 2Dim arrays");
-            }
-
-            // Return the list of max indexes along each column (the reduced dim corresponds to the rows)
-            int[] res = new int[Shape[0]];
-            double max=DataArray[0];
-            int maxIndex= 0;
-            for (int i = 0; i < Shape[0]; i++)
-            {
-                for (int j = 0; j < Shape[1]; j++)
-                {
-                    if(this[i,j] > max){
-                        max = this[i,j];
-                        maxIndex = j;
-                    }
-                }
-                res[i] = maxIndex;
-
-                max = double.MinValue;
-                maxIndex = -1;
-            }
-
-            return res;
-
-        }
-
+        
 
         //Two dimensions are compatible when they are equal, or one of them is 1
         // https://numpy.org/doc/stable/user/basics.broadcasting.html
