@@ -78,7 +78,6 @@ namespace NeuralNet.Autodiff
         public Tensor(params double[] data)
         : this(new NDimArray(data)) { }
 
-        //TODO: test
         public double this[params int[] indexes]
         {
             get

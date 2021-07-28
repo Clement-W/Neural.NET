@@ -1,6 +1,6 @@
 # DNN-Autodiff-From-Scratch
 
-* faire un autre exemple de classification un peu plus poussé, comme mnist dataset
+* faire une séparation test train des données pour la classification binaire
 
 * github
 

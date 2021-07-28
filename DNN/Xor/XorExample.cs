@@ -17,7 +17,7 @@ namespace Xor
         public static void XorExample1()
         {
             // xor operation, ydata is encoded this way : [1,0] if 0 and [0,1] if 1
-            Tensor xData = new Tensor(requiresGrad: true, new int[] { 4, 2 }, 0, 0, 1, 0, 0, 1, 1, 1);
+            Tensor xData = new Tensor(requiresGrad: true, new int[] { 4, 2 }, 0, 0,1, 0, 0, 1, 1, 1);
             Tensor yData = new Tensor(requiresGrad: true, new int[] { 4, 2 }, 1, 0, 0, 1, 0, 1, 1, 0);
 
             // The model class is defined bellow

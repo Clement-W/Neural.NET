@@ -37,6 +37,7 @@ namespace NeuralNet
             {
                 startEpoch = DateTime.Now;
                 epochLoss = 0;
+                accuracy = 0;
                 foreach (Tuple<Tensor, Tensor> batch in trainData)
                 {
                     // Get inputs for this batch
@@ -51,7 +52,7 @@ namespace NeuralNet
                     predicted = this.Predict(inputs);
 
                     // Compute accuracy for this batch
-                    accuracy =  Test(predicted,inputs,actual);
+                    accuracy +=  Test(predicted,inputs,actual);
 
                     // Compute the loss with the given loss function (compare predicted versus actual)
                     loss = LossFunction.ComputeLoss(predicted, actual);
@@ -64,6 +65,8 @@ namespace NeuralNet
                     // Update network parameters with the SGD optimizer
                     Optimizer.Step(this);
                 }
+
+                accuracy = accuracy/trainData.nbBatches;
 
                 if (verbose)
                 {

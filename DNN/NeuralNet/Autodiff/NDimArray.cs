@@ -1,9 +1,9 @@
-//TODO: Generalize methods like XXX to support more than 2D arrays
 using System;
 using System.Linq;
 
 namespace NeuralNet.Autodiff
 {
+    //TODO: Generalize methods like Sum, broadcast operation, matmul to support more than 2D arrays
     public class NDimArray
     {
 
