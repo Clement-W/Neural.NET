@@ -409,6 +409,22 @@ namespace NeuralNet.UnitTests
 
         }
 
+        [Fact]
+        public void Tensor_Test_Simple_Log()
+        {
+            Tensor t1 = new Tensor(requiresGrad: true, 1, 2, 3);
+
+            Tensor t3 = Tensor.Log(t1);
+
+            Assert.True(t3.Data.DataArray.SequenceEqual(new double[] { 0, Math.Log(2), Math.Log(3) }));
+
+            t3.Backward(new Tensor(10, 20, 30));
+
+            Assert.True(t3.Grad.Data.DataArray.SequenceEqual(new double[] { 10, 20, 30 }));
+            Assert.True(t1.Grad.Data.DataArray.SequenceEqual(new double[] { 10, 10, 10 }));
+
+        }
+
 
         [Fact]
         public void Tensor_Test_Matmul()

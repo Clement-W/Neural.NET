@@ -414,6 +414,29 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        // Log base e
+        public static Tensor Log(Tensor t1)
+        {
+            NDimArray data = NDimArray.Log(t1.Data);
+            bool requiresGradient = t1.RequiresGrad;
+            TensorDependency[] dependencies = (requiresGradient) ? new TensorDependency[1] : null;
+
+
+            if (t1.RequiresGrad)
+            {
+                NDimArray GradientFunction1(NDimArray incomingGrad)
+                {
+                    /*
+                    d(ln(t1))/d(t1) = 1/t1, so we just need to multiply the incoming gradient by 1/t1.
+                    */
+                    return incomingGrad * (1/t1.Data);
+                }
+                dependencies[0] = new TensorDependency(t1, GradientFunction1);
+            }
+
+            return new Tensor(data, requiresGradient, dependencies);
+        }
+
         public static Tensor Matmul(Tensor t1, Tensor t2)
         {
 

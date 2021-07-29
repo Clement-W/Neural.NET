@@ -465,10 +465,10 @@ namespace NeuralNet.UnitTests
             NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
             NDimArray a2 = new NDimArray(new int[] { 3 }, 2, 2, 2);
 
-            NDimArray res = NDimArray.Matmul(a1,a2);
+            NDimArray res = NDimArray.Matmul(a1, a2);
 
-            Assert.True(res.Shape.SequenceEqual(new int[] { 4}));
-            Assert.True(res.DataArray.SequenceEqual(new double[] { 12,30,48,66 }));
+            Assert.True(res.Shape.SequenceEqual(new int[] { 4 }));
+            Assert.True(res.DataArray.SequenceEqual(new double[] { 12, 30, 48, 66 }));
 
         }
 
@@ -480,10 +480,10 @@ namespace NeuralNet.UnitTests
             NDimArray a1 = new NDimArray(new int[] { 3 }, 1, 2, 3);
             NDimArray a2 = new NDimArray(new int[] { 3 }, 2, 2, 2);
 
-            NDimArray res = NDimArray.Matmul(a1,a2);
+            NDimArray res = NDimArray.Matmul(a1, a2);
 
-            Assert.True(res.Shape.SequenceEqual(new int[] { 1}));
-            Assert.True(res.DataArray.SequenceEqual(new double[] { 12}));
+            Assert.True(res.Shape.SequenceEqual(new int[] { 1 }));
+            Assert.True(res.DataArray.SequenceEqual(new double[] { 12 }));
 
         }
 
@@ -654,9 +654,9 @@ namespace NeuralNet.UnitTests
 
             NDimArray a1 = new NDimArray(new int[] { 4 }, 1, 2, 3, 4);
 
-            NDimArray res1 = a1.Sum(axis:0);
-            Assert.True(res1.DataArray.SequenceEqual(new double[]{10}));
-            
+            NDimArray res1 = a1.Sum(axis: 0);
+            Assert.True(res1.DataArray.SequenceEqual(new double[] { 10 }));
+
 
         }
 
@@ -683,10 +683,10 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void NDimArray_Test_LeakyReLu()
         {
-            NDimArray a1 = new NDimArray(new int[] {2, 3}, -1, 0, 3,-5,6,4);
+            NDimArray a1 = new NDimArray(new int[] { 2, 3 }, -1, 0, 3, -5, 6, 4);
             NDimArray a2 = NDimArray.LeakyRelu(a1);
 
-            Assert.True(a2.DataArray.SequenceEqual(new double[] { -0.01, 0, 3,-0.05,6,4 }));
+            Assert.True(a2.DataArray.SequenceEqual(new double[] { -0.01, 0, 3, -0.05, 6, 4 }));
         }
 
 
@@ -777,6 +777,33 @@ namespace NeuralNet.UnitTests
 
 
         [Fact]
+        public void NDimArray_Test_Log_Operation2D()
+        {
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 1, 1, 10, 10, 10, 20, 20, 20, 30, 30, 30);
+    
+            NDimArray a5 = NDimArray.Log(a1);
+        
+            Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
+    
+            Assert.True(a5.DataArray.SequenceEqual(new double[] { 0, 0, 0, Math.Log(10), Math.Log(10), Math.Log(10), Math.Log(20), Math.Log(20), Math.Log(20), Math.Log(30), Math.Log(30), Math.Log(30) }));
+        }
+
+        [Fact]
+        public void NDimArray_Test_Log_Operation1D()
+        {
+        
+            NDimArray a2 = new NDimArray(new int[] { 3 }, 0.1, 1, 2);
+           
+            NDimArray a6 = NDimArray.Log(a2);
+           
+            Assert.True(a6.Shape.SequenceEqual(new int[] { 3 }));
+
+            Assert.True(a6.DataArray.SequenceEqual(new double[] { Math.Log(0.1), Math.Log(1), Math.Log(2)}));
+       
+        }
+
+
+        [Fact]
         public void NDimArray_Test_Random()
         {
             NDimArray a1 = NDimArray.Random(4, 3);
@@ -790,135 +817,136 @@ namespace NeuralNet.UnitTests
         [Fact]
         public void NDimArray_Test_Simple_Slice()
         {
-            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            NDimArray a2 = a1.Slice2DArray(2,4);
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = a1.Slice2DArray(2, 4);
 
-            Assert.True(a2.Shape.SequenceEqual(new int[]{2,3}));
-            Assert.True(a2.DataArray.SequenceEqual(new double[]{7,8,9,10,11,12}));            
+            Assert.True(a2.Shape.SequenceEqual(new int[] { 2, 3 }));
+            Assert.True(a2.DataArray.SequenceEqual(new double[] { 7, 8, 9, 10, 11, 12 }));
         }
 
         [Fact]
         public void NDimArray_Test_Slice_Start_0()
         {
-            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            NDimArray a2 = a1.Slice2DArray(0,1);
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = a1.Slice2DArray(0, 1);
 
-            Assert.True(a2.Shape.SequenceEqual(new int[]{1,3}));
-            Assert.True(a2.DataArray.SequenceEqual(new double[]{1,2,3}));            
+            Assert.True(a2.Shape.SequenceEqual(new int[] { 1, 3 }));
+            Assert.True(a2.DataArray.SequenceEqual(new double[] { 1, 2, 3 }));
         }
 
         [Fact]
         public void NDimArray_Test_Slice_End_OutOfBounds()
         {
-            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            NDimArray a2 = a1.Slice2DArray(3,6);
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            NDimArray a2 = a1.Slice2DArray(3, 6);
 
-            Assert.True(a2.Shape.SequenceEqual(new int[]{1,3}));
-            Assert.True(a2.DataArray.SequenceEqual(new double[]{10,11,12}));            
+            Assert.True(a2.Shape.SequenceEqual(new int[] { 1, 3 }));
+            Assert.True(a2.DataArray.SequenceEqual(new double[] { 10, 11, 12 }));
         }
 
 
         [Fact]
         public void NDimArray_Test_Slice_Start_OutOfBounds()
         {
-            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(-1,6));
-            
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(-1, 6));
+
         }
 
         [Fact]
         public void NDimArray_Test_Slice_Start_Equal_End()
         {
-            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(2,2));
-            
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(2, 2));
+
         }
 
 
         [Fact]
         public void NDimArray_Test_Slice_Start_Greater_Than_End()
         {
-            NDimArray a1 = new NDimArray(new int[]{4,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(3,2));
-            
+            NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Assert.Throws<InvalidOperationException>(() => a1.Slice2DArray(3, 2));
+
         }
 
 
         [Fact]
         public void NDimArray_Test_Slice_3DArray_NotSupported()
         {
-            NDimArray a1 = new NDimArray(new int[]{2,2,3},1,2,3,4,5,6,7,8,9,10,11,12);
-            Assert.Throws<NotImplementedException>(() => a1.Slice2DArray(3,2));
-            
+            NDimArray a1 = new NDimArray(new int[] { 2, 2, 3 }, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Assert.Throws<NotImplementedException>(() => a1.Slice2DArray(3, 2));
+
         }
 
         [Fact]
         public void NDimArray_Test_Simple_Arange()
         {
-            NDimArray a1 = NDimArray.Arange(0,10);
-            Assert.True(a1.Shape.SequenceEqual(new int[]{10}));
-            Assert.True(a1.DataArray.SequenceEqual(new double[]{0,1,2,3,4,5,6,7,8,9}));
+            NDimArray a1 = NDimArray.Arange(0, 10);
+            Assert.True(a1.Shape.SequenceEqual(new int[] { 10 }));
+            Assert.True(a1.DataArray.SequenceEqual(new double[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
         }
         [Fact]
         public void NDimArray_Test_Arange_Step_Equal_2()
         {
-            NDimArray a1 = NDimArray.Arange(0,10,2);
-            Assert.True(a1.DataArray.SequenceEqual(new double[]{0,2,4,6,8}));
+            NDimArray a1 = NDimArray.Arange(0, 10, 2);
+            Assert.True(a1.DataArray.SequenceEqual(new double[] { 0, 2, 4, 6, 8 }));
         }
 
         [Fact]
         public void NDimArray_Test_Arange_Big_Step()
         {
-            NDimArray a1 = NDimArray.Arange(0,10,5);
-            Assert.True(a1.DataArray.SequenceEqual(new double[]{0,5}));
+            NDimArray a1 = NDimArray.Arange(0, 10, 5);
+            Assert.True(a1.DataArray.SequenceEqual(new double[] { 0, 5 }));
         }
 
         [Fact]
         public void NDimArray_Test_Arange_Bigger_Step()
         {
-            NDimArray a1 = NDimArray.Arange(0,10,11);
-            Assert.True(a1.DataArray.SequenceEqual(new double[]{0}));
+            NDimArray a1 = NDimArray.Arange(0, 10, 11);
+            Assert.True(a1.DataArray.SequenceEqual(new double[] { 0 }));
         }
 
         [Fact]
         public void NDimArray_Test_Arange_Start_Different_0()
         {
-            NDimArray a1 = NDimArray.Arange(3,10,2);
-            Assert.True(a1.DataArray.SequenceEqual(new double[]{3,5,7,9}));
+            NDimArray a1 = NDimArray.Arange(3, 10, 2);
+            Assert.True(a1.DataArray.SequenceEqual(new double[] { 3, 5, 7, 9 }));
         }
 
         [Fact]
         public void NDimArray_Test_Arange_Start_EqualEnd()
         {
-            NDimArray a1 = NDimArray.Arange(10,10);
-            Assert.True(a1.DataArray.SequenceEqual(new double[]{}));
+            NDimArray a1 = NDimArray.Arange(10, 10);
+            Assert.True(a1.DataArray.SequenceEqual(new double[] { }));
         }
 
         [Fact]
         public void NDimArray_Test_Arange_Start_Greater_Than_End()
         {
-            Assert.Throws<ArgumentException>(() => NDimArray.Arange(13,10,2));
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(13, 10, 2));
         }
 
         [Fact]
         public void NDimArray_Test_Arange_Start_End_Out_of_Bounds()
         {
-            Assert.Throws<ArgumentException>(() => NDimArray.Arange(13,-8,2));
-            Assert.Throws<ArgumentException>(() => NDimArray.Arange(-7,10,2));
-            Assert.Throws<ArgumentException>(() => NDimArray.Arange(-7,-10));
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(13, -8, 2));
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(-7, 10, 2));
+            Assert.Throws<ArgumentException>(() => NDimArray.Arange(-7, -10));
         }
 
 
         [Fact]
-        public void NDimArray_Test_Shuffle(){
+        public void NDimArray_Test_Shuffle()
+        {
             //Console.WriteLine(arr2);
             arr2.Shuffle();
             //Console.WriteLine(arr2);
         }
 
-     
 
-  
+
+
 
     }
 }
