@@ -101,12 +101,12 @@ namespace NeuralNet
             return accuracy;
         }
 
-        public void Evaluate(Tensor XTestData, Tensor YTestData)
+        public void Evaluate(DataLoader testData)
         {
             Console.WriteLine("\nEvaluation : ");
-            Tensor predictions = this.Predict(XTestData);
-            double accuracy = Test(predictions, XTestData, YTestData);
-            Console.WriteLine("Accuracy : " + accuracy + "%, Loss : " + LossFunction.ComputeLoss(predictions, YTestData).Data.DataArray[0]);
+            Tensor predictions = this.Predict(testData.XData);
+            double accuracy = Test(predictions, testData.XData, testData.YData);
+            Console.WriteLine("Accuracy : " + accuracy + "%, Loss : " + LossFunction.ComputeLoss(predictions, testData.YData).Data.DataArray[0]);
 
         }
 

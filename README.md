@@ -1,6 +1,6 @@
 # DNN-Autodiff-From-Scratch
 
-* faire une séparation test train des données pour la classification binaire
+* implémentation binary crossentropy loss
 
 * github
 

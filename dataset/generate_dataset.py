@@ -13,7 +13,7 @@ x_data,y_data = dt.make_classification(n_samples=1000,
                                        random_state=seed)
 """
 
-x_data,y_data = dt.make_circles(n_samples=500,
+x_data,y_data = dt.make_circles(n_samples=700,
                               noise=0.2,
                               factor=0.3)
 

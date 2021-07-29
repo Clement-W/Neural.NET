@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNet-Tests", "NeuralNe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xor", "Xor\Xor.csproj", "{5BB3AA54-26DC-4CC9-842C-7CD0D5BBB7C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryClassification", "BinaryClassification\BinaryClassification.csproj", "{C31DA929-B110-4BB1-B165-4631D0830AA8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CirclesClassification", "CirclesClassification\CirclesClassification.csproj", "{C31DA929-B110-4BB1-B165-4631D0830AA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

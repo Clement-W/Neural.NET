@@ -37,7 +37,7 @@ namespace Xor
             model.Train(trainData,nbEpochs,verbose:true);
 
             // Evalute the model
-            model.Evaluate(xData, yData);
+            model.Evaluate(trainData);
         }
 
         // This example uses Sequential to define the model
@@ -72,7 +72,7 @@ namespace Xor
             model.Train(trainData,nbEpochs,verbose:true);
 
             // Evalute the model
-            model.Evaluate(xData, yData);      
+            model.Evaluate(trainData);      
 
         }
 
