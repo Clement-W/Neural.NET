@@ -17,7 +17,8 @@ Great ressources that helped me a lot to carry out this project :
 
 ### Built With
 
-* [Dotnet 5.0.301](https://dotnet.microsoft.com/)
+* [Dotnet 5.0](https://dotnet.microsoft.com/)
+* XUnit
 
 
 ## Getting Started
@@ -27,7 +28,11 @@ To get a local copy up and running follow these simple example steps.
 ### Prerequisites
 
 * Dotnet  ⩾ 5.0
+
+
 and/or
+
+
 * Visual Studio 2019
 
 ### Installation
@@ -40,17 +45,101 @@ and/or
    ```
 2. Open the solution DNN.sln with visual studio or visual studio code with .NET core and solution explorer extensions.
 
-
 ## Usage
+
+### Create a model 
+
+* With the sequential class :
+```cs
+Sequential model = new Sequential(
+                new LinearLayer(2, 4),
+                new LeakyRelu(),
+                new LinearLayer(4, 8),
+                new LeakyRelu(),
+                new LinearLayer(8, 2),
+                new Sigmoid()
+            );
+```
+
+* By inheriting from the Model class :
+
+```cs
+class MyModel : Model
+    {
+        public LinearLayer Linear1 { get; set; }
+        public LinearLayer Linear2 { get; set; }
+        public LinearLayer Linear3 { get; set; }
+
+        public Tanh Activation1 { get; set; }
+        public Tanh Activation2 { get; set; }
+
+        public MyModel()
+        {
+            Linear1 = new LinearLayer(2, 5);
+            Activation1 = new Tanh();
+            Linear2 = new LinearLayer(5, 5);
+            Activation2 = new Tanh();
+            Linear3 = new LinearLayer(5, 2);
+
+        }
+
+        public override Tensor Predict(Tensor inputs)
+        {
+            Tensor output;
+            output = Linear1.Forward(inputs);
+            output = Activation1.Forward(output);
+            output = Linear2.Forward(output);
+            output = Activation2.Forward(output);
+            output = Linear3.Forward(output);
+            return output;
+        }
+    }
+```
+### Compile the model 
+
+Compile the model with an optimizer and a loss function :
+```cs
+Optimizer optimizer = new SGD(lr: 0.03);
+ILoss mse = new MSE();
+model.Compile(optimizer,mse);
+```
+
+### Load the data 
+
+The Dataloader class will split the data in multiple batches :
+```cs
+Tensor xData = new Tensor(requiresGrad: true, shape: new int[] { 4, 2 }, 0, 0, 1, 0, 0, 1, 1, 1);
+Tensor yData = new Tensor(requiresGrad: true, shape: new int[] { 4, 2 }, 1, 0, 0, 1, 0, 1, 1, 0);
+
+int batchSize = 4;
+DataLoader trainData = new DataLoader(xData, yData, batchSize, true);
+```
+
+### Train the model
+
+```cs
+int nbEpochs = 500;
+model.Train(trainData, nbEpochs, verbose: true);
+```
+
+### Evaluate the model
+
+If you have a train and a test set, you can evaluate the model :
+```cs
+model.Evaluate(testData);
+````
+
 
 
 ## Demo
 
+I've implemented two examples to test the library : 
+* Xor 
+* Circles classification
 
-blablabla:
-```py
-blabla
-```
+## Testing
+
+
 
 
 <!-- CONTRIBUTING -->
