@@ -60,7 +60,7 @@ Sequential model = new Sequential(
             );
 ```
 
-* By inheriting from the Model class :
+* Or by inheriting from the Model class :
 
 ```cs
 class MyModel : Model
@@ -110,8 +110,8 @@ The Dataloader class will split the data in multiple batches :
 Tensor xData = new Tensor(requiresGrad: true, shape: new int[] { 4, 2 }, 0, 0, 1, 0, 0, 1, 1, 1);
 Tensor yData = new Tensor(requiresGrad: true, shape: new int[] { 4, 2 }, 1, 0, 0, 1, 0, 1, 1, 0);
 
-int batchSize = 4;
-DataLoader trainData = new DataLoader(xData, yData, batchSize, true);
+int batchSize = 2;
+DataLoader trainData = new DataLoader(xData, yData, batchSize,shuffle: true);
 ```
 
 ### Train the model
@@ -123,21 +123,19 @@ model.Train(trainData, nbEpochs, verbose: true);
 
 ### Evaluate the model
 
-If you have a test set, you can evaluate the model :
 ```cs
 model.Evaluate(testData);
 ````
 
-
 ## Demo
 
 I've implemented two examples to test the library : 
-* Xor : Simple neural net that learned the xor operation
+* Xor : Simple neural net that learned the xor operation.
 * Circles classification : Binary classification of 2 group of data points in circles.
 
 ## Testing
 
-Use xUnit 2.4.1,  ```cs dotnet test``` to execute the unit tests.
+With xUnit 2.4.1, use ```dotnet test``` to execute the unit tests.
 
 
 <!-- CONTRIBUTING -->
