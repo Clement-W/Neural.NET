@@ -69,16 +69,19 @@ class MyModel : Model
         public LinearLayer Linear2 { get; set; }
         public LinearLayer Linear3 { get; set; }
 
-        public Tanh Activation1 { get; set; }
-        public Tanh Activation2 { get; set; }
+        public LeakyRelu Activation1 { get; set; }
+        public LeakyRelu Activation2 { get; set; }
+        public Sigmoid Activation3 { get; set; }
+
 
         public MyModel()
         {
             Linear1 = new LinearLayer(2, 5);
-            Activation1 = new Tanh();
+            Activation1 = new LeakyRelu();
             Linear2 = new LinearLayer(5, 5);
-            Activation2 = new Tanh();
+            Activation2 = new LeakyRelu();
             Linear3 = new LinearLayer(5, 2);
+            Activation3 = new Sigmoid();
 
         }
 
@@ -90,6 +93,7 @@ class MyModel : Model
             output = Linear2.Forward(output);
             output = Activation2.Forward(output);
             output = Linear3.Forward(output);
+            output = Activation3.Forward(output);
             return output;
         }
     }
@@ -129,7 +133,7 @@ model.Evaluate(testData);
 
 ## Demo
 
-I've implemented two examples to test the library : 
+You can find more in the two examples i've implemented to test the library : 
 * Xor : Simple neural net that learned the xor operation.
 * Circles classification : Binary classification of 2 group of data points in circles.
 
