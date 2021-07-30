@@ -39,8 +39,8 @@ and/or
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/Clement-W/DNN-Autodiff-From-Scratch.git
-   cd DNN-Autodiff-From-Scratch/DNN/
+   git clone https://github.com/Clement-W/Neural.NET.git
+   cd Neural.NET/DNN/
    ```
 2. Open the solution DNN.sln with visual studio or visual studio code with .NET core and solution explorer extensions.
 
