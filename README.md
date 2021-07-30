@@ -125,7 +125,7 @@ model.Train(trainData, nbEpochs, verbose: true);
 
 ```cs
 model.Evaluate(testData);
-````
+```
 
 ## Demo
 
@@ -138,24 +138,22 @@ I've implemented two examples to test the library :
 With xUnit 2.4.1, use ```dotnet test``` to execute the unit tests.
 
 
-<!-- CONTRIBUTING -->
 ## Contributing
 
 I'm still a beginner in this field, so feel free to use Issues or PR to report errors and/or propose additions or corrections to my code. Any contributions you make are greatly appreciated !
 
-
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 
-<!-- TODO LIST -->
 ## Todo list
 
+- [ ] Add documentation
 - [ ] Add softmax
 - [ ] Add multi class classification
 - [ ] Add momentum for sgd
 - [ ] Add callbacks, reduce lr on plateau
 - [ ] Add support for >2dim array for some methods
 - [ ] Improve ndimarray and tensors class efficiency
+
