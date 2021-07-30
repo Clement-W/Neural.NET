@@ -512,7 +512,7 @@ namespace NeuralNet.UnitTests
         public void Tensor_Test_Get_Predictions(){
             Tensor a = new Tensor(requiresGrad:true,new int[]{2,3},-3,3,4,-9,10,5);
             int[] maxIndexes = a.GetPredictionsIndexes();
-            Console.WriteLine(string.Join(", ",maxIndexes));
+            //Console.WriteLine(string.Join(", ",maxIndexes));
             Assert.True(maxIndexes.SequenceEqual(new int[]{2,1}));
         }
 
