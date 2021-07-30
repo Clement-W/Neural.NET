@@ -3,6 +3,6 @@ namespace NeuralNet.Loss
 {
     public interface ILoss
     {
-        Tensor ComputeLoss(Tensor input, Tensor target);
+        Tensor ComputeLoss(Tensor predicted, Tensor target);
     }
 }

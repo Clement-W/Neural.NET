@@ -766,9 +766,6 @@ namespace NeuralNet.Autodiff
             NDimArray res = new NDimArray(arr1.Shape);
             for (int i = 0; i < arr1.NbElements; i++)
             {
-                if(arr1.DataArray[i]==0){
-                    arr1.DataArray[i] = 1e-15; // to avoid log 0
-                }
                 res.DataArray[i] = Math.Log(arr1.DataArray[i]);
             }
             return res;

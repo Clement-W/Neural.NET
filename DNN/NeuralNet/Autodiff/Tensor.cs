@@ -275,6 +275,14 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        public static Tensor operator +(double scalar, Tensor t2){
+            return new Tensor(scalar) + t2;
+        }
+
+        public static Tensor operator +(Tensor t1, double scalar){
+            return t1 + new Tensor(scalar);
+        }
+
         public static Tensor operator *(Tensor t1, Tensor t2)
         {
             NDimArray data = t1.Data * t2.Data;
@@ -312,6 +320,14 @@ namespace NeuralNet.Autodiff
                 dependencies[nbDependencies - 1] = new TensorDependency(t2, GradientFunction2);
             }
             return new Tensor(data, requiresGradient, dependencies);
+        }
+
+        public static Tensor operator *(double scalar, Tensor t2){
+            return new Tensor(scalar) * t2;
+        }
+
+        public static Tensor operator *(Tensor t1, double scalar){
+            return t1 * new Tensor(scalar);
         }
 
 
@@ -374,6 +390,16 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        public static Tensor operator -(double scalar, Tensor t2)
+        {
+            return new Tensor(scalar) - t2;
+        }
+
+        public static Tensor operator -(Tensor t1, double scalar)
+        {
+            return t1 - scalar;
+        }
+
 
         public static Tensor operator /(Tensor t1, Tensor t2)
         {
@@ -412,6 +438,14 @@ namespace NeuralNet.Autodiff
                 dependencies[nbDependencies - 1] = new TensorDependency(t2, GradientFunction2);
             }
             return new Tensor(data, requiresGradient, dependencies);
+        }
+
+        public static Tensor operator /(double scalar, Tensor t2){
+            return new Tensor(scalar) / t2;
+        }
+
+        public static Tensor operator /(Tensor t1, double scalar){
+            return t1 * new Tensor(scalar);
         }
 
         // Log base e
