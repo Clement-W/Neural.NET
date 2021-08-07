@@ -3,25 +3,8 @@ using NeuralNet.Autodiff;
 using System;
 using System.Linq;
 
-/*TODO: writer better tests, more files with better names : methodName_scenario_expectedBehavior
-ex: Add_SingleNumber_ReturnsSameNumber
-
-Organisation, Action, Assertion est un modèle courant pour les tests unitaires. Comme son nom l’indique, il comporte trois actions principales :
-
-    Organisation, création et configuration des objets selon les besoins
-    Agir sur un objet.
-    Assertion de ce qui est prévu
-
-Durant l’écriture des tests, essayez d’inclure uniquement une instruction Assert par test. Voici les approches courantes pour utiliser une seule assertion :
-
-    Créez un test distinct pour chaque assertion.
-    Utilisez des tests paramétrables.
-CAR : 
-    En cas d’échec d’une instruction Assert, les assertions qui suivent ne sont pas évaluées.
-    Permet de vérifier que vous n’effectuez pas l’assertion de plusieurs cas dans vos tests.
-    Vous donne une idée complète des causes de l’échec des tests.
-    ->Il existe une exception usuelle à cette règle : l’assertion d’un objet par différenciation. Dans ce cas, il est généralement acceptable d’avoir plusieurs assertions sur chaque propriété pour vérifier que l’objet se trouve dans l’état prévu.
--> faire une méthode et utiliser inline :
+/*TODO: writer better tests
+exemple : Organisation, Action, Assertion 
 [InlineData(null)]
 [InlineData("a")]
 public void Add_InputNullOrAlphabetic_ThrowsArgumentException(string input)

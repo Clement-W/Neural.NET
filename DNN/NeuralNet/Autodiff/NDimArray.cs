@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace NeuralNet.Autodiff
 {
-    //TODO: Generalize methods like Sum, broadcast operation, matmul to support more than 2D arrays
+    //TODO: Generalize methods like Sum along specified axis, broadcast operation, matmul to support more than 2D arrays
     public class NDimArray
     {
 
