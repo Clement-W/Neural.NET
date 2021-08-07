@@ -158,6 +158,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - [ ] Add multi class classification
 - [ ] Add momentum for sgd
 - [ ] Add callbacks, reduce lr on plateau
-- [ ] Add support for >2dim array for some methods
-- [ ] Improve ndimarray and tensors class efficiency
+- [ ] Add support for >2dim array for NDimArray by generalizing those methods: Sum, Slice2DArrays, ApplyBroadcastOperationBetween2DArrays
 
