@@ -7,7 +7,7 @@
 ## About The Project
 
 What's the best way to fully understand something ? Doing it from sratch ! 
-That's why i've implemented a little neural net library with automatic differenciation, inspired by Pytorch and Keras. This project was conducted for educational purposes and is not complete at all. Performances cannot compete with other c# neural network library like [NeuralNetwork.NET](https://github.com/Sergio0694/NeuralNetwork.NET). 
+That's why i've implemented a little neural net library with automatic differentiation, inspired by Pytorch and Keras. This project was conducted for educational purposes and is not complete at all. Performances cannot compete with other c# neural network library like [NeuralNetwork.NET](https://github.com/Sergio0694/NeuralNetwork.NET). 
 
 Great ressources that helped me a lot to carry out this project : 
 * [3Blue1Brown](https://youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) : Really good math videos that helped me to get the intuition of how neural network work.
