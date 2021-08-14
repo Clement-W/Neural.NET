@@ -731,6 +731,7 @@ namespace NeuralNet.UnitTests
             NDimArray a1 = new NDimArray(new int[] { 1, 3 }, 1, 2, 3);
             NDimArray a2 = new NDimArray(new int[] { 3 }, 1, 2, 3);
             NDimArray a3 = new NDimArray(new int[] { 4, 1 }, 1, 2, 3, 4);
+            NDimArray a4 = new NDimArray(new int[] { 4, 1, 1 }, 1, 2, 3, 4);
             int[] newShape = new int[] { 4, 3 };
 
             NDimArray a1Extended = NDimArray.Extend2DArrayByShape(a1, newShape);
@@ -746,6 +747,7 @@ namespace NeuralNet.UnitTests
             Assert.True(a3Extended.Shape.SequenceEqual(new int[] { 4, 3 }));
             Assert.True(a3Extended.DataArray.SequenceEqual(new double[] { 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4 }));
 
+            Assert.Throws<NotImplementedException>(() => NDimArray.Extend2DArrayByShape(a4,newShape));
         }
 
         [Fact]
@@ -780,26 +782,26 @@ namespace NeuralNet.UnitTests
         public void NDimArray_Test_Log_Operation2D()
         {
             NDimArray a1 = new NDimArray(new int[] { 4, 3 }, 1, 1, 1, 10, 10, 10, 20, 20, 20, 30, 30, 30);
-    
+
             NDimArray a5 = NDimArray.Log(a1);
-        
+
             Assert.True(a5.Shape.SequenceEqual(new int[] { 4, 3 }));
-    
+
             Assert.True(a5.DataArray.SequenceEqual(new double[] { 0, 0, 0, Math.Log(10), Math.Log(10), Math.Log(10), Math.Log(20), Math.Log(20), Math.Log(20), Math.Log(30), Math.Log(30), Math.Log(30) }));
         }
 
         [Fact]
         public void NDimArray_Test_Log_Operation1D()
         {
-        
+
             NDimArray a2 = new NDimArray(new int[] { 3 }, 0.1, 1, 2);
-           
+
             NDimArray a6 = NDimArray.Log(a2);
-           
+
             Assert.True(a6.Shape.SequenceEqual(new int[] { 3 }));
 
-            Assert.True(a6.DataArray.SequenceEqual(new double[] { Math.Log(0.1), Math.Log(1), Math.Log(2)}));
-       
+            Assert.True(a6.DataArray.SequenceEqual(new double[] { Math.Log(0.1), Math.Log(1), Math.Log(2) }));
+
         }
 
 

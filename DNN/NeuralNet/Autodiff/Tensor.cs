@@ -3,10 +3,21 @@ using System.Linq;
 
 namespace NeuralNet.Autodiff
 {
+    /// <summary>
+    /// This class represents a Tensor, basically it's a ndimarray that supports gradient computation
+    /// </summary>
     public class Tensor
     {
+        /// <summary>
+        /// The data contained in the tensor is a ndim array
+        /// </summary>
         private NDimArray _data;
 
+        /// <summary>
+        /// Property used to access _data
+        /// If the data is mannualy set, the gradient is set to null
+        /// </summary>
+        /// <value></value>
         public NDimArray Data
         {
             get
@@ -21,12 +32,30 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        /// <summary>
+        /// Boolean which indicates if the gradient has to be computed for this tensor
+        /// </summary>
+        /// <value></value>
         public bool RequiresGrad { get; set; }
 
+        /// <summary>
+        /// This list contains the tensors on which the current tensor depends
+        /// The TensorDependency object is composed of the tensor dependencies, and the gradient functions 
+        /// used to compute the gradient of this tensor, with respect to the dependencies
+        /// </summary>
+        /// <value></value>
         public TensorDependency[] TensorDependencies { get; set; }
 
+        /// <summary>
+        /// The computed gradient with respect to this tensor
+        /// </summary>
+        /// <value></value>
         public Tensor Grad { get; set; }
 
+        /// <summary>
+        /// The shape of the tensor
+        /// </summary>
+        /// <value></value>
         public int[] Shape
         {
             get
@@ -35,6 +64,10 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        /// <summary>
+        /// The number of dimension of this tensor
+        /// </summary>
+        /// <value></value>
         public int Ndim
         {
             get
@@ -43,6 +76,10 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        /// <summary>
+        /// The number of elements contained in this tensor
+        /// </summary>
+        /// <value></value>
         public int NbElements
         {
             get
@@ -51,6 +88,12 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        /// <summary>
+        /// Constructor used to create a tensor with a ndim array
+        /// </summary>
+        /// <param name="data">The ndim array that compose the tensor</param>
+        /// <param name="requiresGrad">Boolean that indicates if the gradient needs to be computed</param>
+        /// <param name="dependencies">The tensor dependencies of this tensor</param>
         public Tensor(NDimArray data, bool requiresGrad = false, TensorDependency[] dependencies = null)
         {
             _data = new NDimArray(data); //copy to avoid reference issues
@@ -65,19 +108,43 @@ namespace NeuralNet.Autodiff
             }
         }
 
+        /// <summary>
+        /// Constructor used to create a tensor with the given shapes
+        /// </summary>
+        /// <param name="shape">The shape of the tensor</param>
+        /// <param name="requiresGrad">Boolean that indicates if the gradient needs to be computed</param>
+        /// <param name="dependencies">The tensor dependencies of this tensor</param>
         public Tensor(int[] shape, bool requiresGrad = false, TensorDependency[] dependencies = null)
         : this(new NDimArray(shape), requiresGrad, dependencies) { }
 
-
+        /// <summary>
+        /// Constructor used to create a 1dim tensor with the given data 
+        /// </summary>
+        /// <param name="requiresGrad">Boolean that indicates if the gradient needs to be computed</param>
+        /// <param name="data">The data contained in the 1-dim array that compose the tensor</param>
         public Tensor(bool requiresGrad, params double[] data)
         : this(new NDimArray(data), requiresGrad) { }
 
+        /// <summary>
+        /// Constructor used to create a tensor with the given shape and the given data
+        /// </summary>
+        /// <param name="requiresGrad">Boolean that indicates if the gradient needs to be computed</param>
+        /// <param name="shape">The shape of the tensor</param>
+        /// <param name="data">The data contained in the n-dim array that compose the tensor</param>
         public Tensor(bool requiresGrad, int[] shape, params double[] data)
         : this(new NDimArray(shape, data), requiresGrad) { }
 
+        /// <summary>
+        /// Constructor used to create a 1dim tensor with the given data
+        /// </summary>
+        /// <param name="data">The data contained in the 1-dim array that compose the tensor</param>
         public Tensor(params double[] data)
         : this(new NDimArray(data)) { }
 
+        /// <summary>
+        /// Indexer to access the values of the tensor
+        /// </summary>
+        /// <value></value>
         public double this[params int[] indexes]
         {
             get
@@ -95,20 +162,26 @@ namespace NeuralNet.Autodiff
             return $"Tensor, shape=({string.Join(", ", Shape)}), requiresGradient = {RequiresGrad} ,data = ({this.Data})";
         }
 
+        /// <summary>
+        /// Set the gradient w.r.t this tensor to 0
+        /// </summary>
         public void ZeroGrad()
         {
             // Create a NDimArray with the same shape as the data, that contains only zeros.
             Grad = new Tensor(NDimArray.Zeros_like(Data));
         }
 
-        // The gradient don't need to be specified if the current tensor is a scalar (one element tensor)
-        // Backpropagate a gradient through the graph
+
+
+        /// <summary>
+        /// Backpropagate a gradient through the auto differenciation graph by
+        /// recurcively calling this method on the tensor dependencies.
+        /// The gradient don't need to be specified if the current tensor is a scalar (one element tensor) 
+        /// </summary>
+        /// <param name="gradient">The gradient that will be backpropagated through the grpah</param>
         public void Backward(Tensor gradient = null)
         {
 
-            //Console.WriteLine("Current tensor is " + this.ToString());
-            //Console.WriteLine("AA");
-            //Console.WriteLine(string.Join(", ",this.Shape));
             if (RequiresGrad == false)
             {
                 throw new InvalidOperationException("Can't call backward method on a tensor that don't requires gradient.");
@@ -127,8 +200,6 @@ namespace NeuralNet.Autodiff
                 }
             }
 
-            //Console.WriteLine("received grad = " + string.Join(", ",gradient.Shape) + " " + string.Join(", ", gradient.Data));
-
 
             if (Grad == null)
             {
@@ -139,29 +210,15 @@ namespace NeuralNet.Autodiff
             // This allow gadient accumulation
             Grad.Data = Grad.Data + gradient.Data;
 
-            //Console.WriteLine("received grad after grad update = " + string.Join(", ",gradient.Shape) + " " + string.Join(", ", gradient.Data));
-
             // Loop recursively into each dependencies of the current tensor to go through the whole graph
 
             if (TensorDependencies != null)
             {
                 foreach (TensorDependency dependency in TensorDependencies)
                 {
-                    //Console.WriteLine("dependency of this tensor : " + dependency.TensorDep.ToString()); 
-                    //Console.WriteLine("grad before dependency.gradFunction  = " + string.Join(", ", gradient.Shape) + " " + string.Join(", ", gradient.Data));
-                    //Console.WriteLine("oui");
-                    NDimArray backwardGradient = dependency.GradFunction(gradient.Data);
-                    //Console.WriteLine("BackwardGradient is " + backwardGradient.ToString());
-                    //Console.WriteLine("grad after dependency.gradFunction  = " + string.Join(", ", gradient.Shape) + " " + string.Join(", ", gradient.Data));
-                    //Console.WriteLine("grad shape : " + string.Join(", ", gradient.Shape));
-                    //Console.WriteLine("grad data : " + gradient.Data);
-                    //Console.WriteLine("dependency shape : " + string.Join(", ", dependency.TensorDep.Shape));
-                    //Console.WriteLine("dependency data : " + string.Join(", ", dependency.TensorDep.Data));
-
                     // Compute the gradient with respect to this dependency thanks to the gradient function
+                    NDimArray backwardGradient = dependency.GradFunction(gradient.Data);
 
-                    //Console.WriteLine("backwardGrad shape: " + string.Join(", ", backwardGradient.Shape));
-                    //Console.WriteLine("backwardGrad data: " + string.Join(", ", backwardGradient.DataArray));
                     // Backward this gradient through this dependency
                     dependency.TensorDep.Backward(new Tensor(backwardGradient));
                 }
@@ -169,7 +226,10 @@ namespace NeuralNet.Autodiff
 
         }
 
-        // Return the sum of the tensor's elements
+        /// <summary>
+        /// Return the sum of the tensor's elements
+        /// </summary>
+        /// <returns></returns>
         public Tensor Sum()
         {
             NDimArray data = Data.Sum();
@@ -194,14 +254,16 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, RequiresGrad, dependencies);
         }
 
-        // This method can be used for every operation that uses broadcasting
-        // It sums out the broadcasted shape to count them in the gradient
+
+        /// <summary>
+        /// This method is used for every ops that uses broadcasting. It sums out the broadcasted shape to 
+        /// count them in the gradient.
+        /// </summary>
+        /// <param name="gradient">The incoming gradient</param>
+        /// <param name="tensor">The tensor from which the gradient is computed</param>
+        /// <returns></returns>
         private static NDimArray HandleBroadcasting(NDimArray gradient, Tensor tensor)
         {
-
-            //Console.WriteLine(string.Join(", ", tensor.Shape));
-            //Console.WriteLine(string.Join(", ", gradient.Shape));
-            //Console.WriteLine(string.Join(", ", gradient.DataArray));
 
             // First, sum out the dims added by the broadcast operation, so that the gradient
             // has the same dimensions of the tensor
@@ -216,27 +278,32 @@ namespace NeuralNet.Autodiff
             }
 
             // Now, to deal with this case :  [[1,2],[3,4]] + [[2,2]] = [[3,4],[5,6]]
-            // where the dimensions are broadcasted but not added, we'll need to sum the dims
-            // broadcasted by keeping the dimensions
+            // where the operation is broadcasted but no dimension is added, we'll need to sum the 
+            // broadcasted dims  by keeping the dimensions.
 
-            //Console.WriteLine($"grad before broadcast with keep dims : {string.Join(", ", gradient.Shape)} ; {gradient}");
-            //Console.WriteLine(string.Join(", ",tensor.Data.DataArray));
-
+            // For each dimension
             for (int i = 0; i < tensor.Ndim; i++)
             {
                 // If the dimension is equal to 1, it means that the operation is broadcasted along this axis
                 // If it's a scalar, it doesn't change anything 
                 if (tensor.Shape[i] == 1)
                 {
-                    //Console.WriteLine("opertion will be broadcsted alongo axis " + i);
                     gradient = gradient.Sum(axis: i, keepDims: true);
-                    //Console.WriteLine($"grad after sum(axis={i}) : {string.Join(", ", gradient.Shape)} ; {gradient}");
                 }
             }
             return gradient;
 
         }
 
+        /// <summary>
+        /// + operator for tensors to support addition between 2 tensors
+        /// This method will add the 2 ndim array contained in the tensor, and then if one of the
+        /// two tensors requires gradient computation, the result of t1+t2 will also requires gradient computation.
+        /// So we add t1 and t2 as dependencies of this tensor, with the corresponding gradient functionss.
+        /// </summary>
+        /// <param name="t1">The first tensor</param>
+        /// <param name="t2">The second tensor</param>
+        /// <returns>A new tensor equal to t1+t2</returns>
         public static Tensor operator +(Tensor t1, Tensor t2)
         {
             NDimArray data = t1.Data + t2.Data;
@@ -275,14 +342,37 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
-        public static Tensor operator +(double scalar, Tensor t2){
+        /// <summary>
+        /// + operator to support addition between a scalar and a tensor
+        /// </summary>
+        /// <param name="scalar">The scalar</param>
+        /// <param name="t2">The tensor</param>
+        /// <returns>A new tensor equal to scalar + t2</returns>
+        public static Tensor operator +(double scalar, Tensor t2)
+        {
             return new Tensor(scalar) + t2;
         }
 
-        public static Tensor operator +(Tensor t1, double scalar){
+        /// <summary>
+        /// + operator to support addition between a tensor and a scalar
+        /// </summary>
+        /// <param name="t1">The tensor</param>
+        /// <param name="scalar">The scalar</param>
+        /// <returns>A new tensor equal to t1 + scalar</returns>
+        public static Tensor operator +(Tensor t1, double scalar)
+        {
             return t1 + new Tensor(scalar);
         }
 
+        /// <summary>
+        /// * operator for tensors to support multiplication between 2 tensors
+        /// This method will multiply the 2 ndim array contained in the tensor, and then if one of the
+        /// two tensors requires gradient computation, the result of t1*t2 will also requires gradient computation.
+        /// So we add t1 and t2 as dependencies of this tensor, with the corresponding gradient functions.
+        /// </summary>
+        /// <param name="t1">The first tensor</param>
+        /// <param name="t2">The second tensor</param>
+        /// <returns>A new tensor equal to t1*t2</returns>
         public static Tensor operator *(Tensor t1, Tensor t2)
         {
             NDimArray data = t1.Data * t2.Data;
@@ -322,15 +412,36 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
-        public static Tensor operator *(double scalar, Tensor t2){
+        /// <summary>
+        /// * operator to support multiplication between a scalar and a tensor
+        /// </summary>
+        /// <param name="scalar">The scalar</param>
+        /// <param name="t2">The tensor</param>
+        /// <returns>A new tensor equal to scalar * t2</returns>
+        public static Tensor operator *(double scalar, Tensor t2)
+        {
             return new Tensor(scalar) * t2;
         }
 
-        public static Tensor operator *(Tensor t1, double scalar){
+        /// <summary>
+        /// * operator to support multiplication between a tensor and a scalar
+        /// </summary>
+        /// <param name="t1">The tensor</param>
+        /// <param name="scalar">The scalar</param>
+        /// <returns>A new tensor equal to t1 * scalar</returns>
+        public static Tensor operator *(Tensor t1, double scalar)
+        {
             return t1 * new Tensor(scalar);
         }
 
-
+        /// <summary>
+        /// - operator to negate the tensor.
+        /// This method will negate the ndim array contained in the tensor, and then if the
+        /// original tensor requires gradient computation, the result of -t1 will also requires gradient computation.
+        /// So we add t1 as a dependency of this tensor, with the corresponding gradient functions.
+        /// </summary>
+        /// <param name="t1">The tensor</param>
+        /// <returns>A new tensor equal to -t1</returns>
         public static Tensor operator -(Tensor t1)
         {
             NDimArray data = -t1.Data;
@@ -353,6 +464,15 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        /// <summary>
+        /// - operator for tensors to support substraction between 2 tensors
+        /// This method will substract the 2 ndim array contained in the tensor, and then if one of the
+        /// two tensors requires gradient computation, the result of t1-t2 will also requires gradient computation.
+        /// So we add t1 and t2 as dependencies of this tensor, with the corresponding gradient functions.
+        /// </summary>
+        /// <param name="t1">The first tensor</param>
+        /// <param name="t2">The second tensor</param>
+        /// <returns>A new tensor equal to t1-t2</returns>
         public static Tensor operator -(Tensor t1, Tensor t2)
         {
             NDimArray data = t1.Data - t2.Data;
@@ -390,17 +510,39 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        /// <summary>
+        /// - operator to support substraction between a scalar and a tensor
+        /// </summary>
+        /// <param name="scalar">The scalar</param>
+        /// <param name="t2">The tensor</param>
+        /// <returns>A new tensor equal to scalar - t2</returns>
         public static Tensor operator -(double scalar, Tensor t2)
         {
             return new Tensor(scalar) - t2;
         }
 
+        /// <summary>
+        /// - operator to support substraction between a tensor and a scalar
+        /// </summary>
+        /// <param name="t1">The tensor</param>
+        /// <param name="scalar">The scalar</param>
+        /// <returns>A new tensor equal to t1 - scalar</returns>
         public static Tensor operator -(Tensor t1, double scalar)
         {
             return t1 - scalar;
         }
 
 
+        /// <summary>
+        /// / operator for tensors to support true division between 2 tensors
+        /// This method will perform true division between the 2 ndim array contained in the tensor, 
+        /// and then if one of the two tensors requires gradient computation, the result of t1-t2 will 
+        /// also requires gradient computation.
+        /// So we add t1 and t2 as dependencies of this tensor, with the corresponding gradient functionss.
+        /// </summary>
+        /// <param name="t1">The first tensor</param>
+        /// <param name="t2">The second tensor</param>
+        /// <returns>A new tensor equal to t1/t2</returns>
         public static Tensor operator /(Tensor t1, Tensor t2)
         {
             NDimArray data = t1.Data / t2.Data;
@@ -440,15 +582,35 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
-        public static Tensor operator /(double scalar, Tensor t2){
+        /// <summary>
+        /// / operator to support true division between a scalar and a tensor
+        /// </summary>
+        /// <param name="scalar">The scalar</param>
+        /// <param name="t2">The tensor</param>
+        /// <returns>A new tensor equal to scalar / t2</returns>
+        public static Tensor operator /(double scalar, Tensor t2)
+        {
             return new Tensor(scalar) / t2;
         }
 
-        public static Tensor operator /(Tensor t1, double scalar){
+        /// <summary>
+        /// / operator to support substraction between a tensor and a scalar
+        /// </summary>
+        /// <param name="t1">The tensor</param>
+        /// <param name="scalar">The scalar</param>
+        /// <returns>A new tensor equal to t1 / scalar</returns>
+        public static Tensor operator /(Tensor t1, double scalar)
+        {
             return t1 * new Tensor(scalar);
         }
 
-        // Log base e
+     
+        /// <summary>
+        /// Perform log base e (ln) on the tensor. If t1 requires gradient computation, store t1 as
+        /// a dependency.
+        /// </summary>
+        /// <param name="t1">The tensor</param>
+        /// <returns>A new tensor equal to ln(t1)</returns>
         public static Tensor Log(Tensor t1)
         {
             NDimArray data = NDimArray.Log(t1.Data);
@@ -463,7 +625,7 @@ namespace NeuralNet.Autodiff
                     /*
                     d(ln(t1))/d(t1) = 1/t1, so we just need to multiply the incoming gradient by 1/t1.
                     */
-                    return incomingGrad * (1/t1.Data);
+                    return incomingGrad * (1 / t1.Data);
                 }
                 dependencies[0] = new TensorDependency(t1, GradientFunction1);
             }
@@ -471,6 +633,13 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        /// <summary>
+        /// Perform matrix multiplication between 2 tensors. If one of the two tensor requires grad computation,
+        /// store them into the result's dependencies.
+        /// </summary>
+        /// <param name="t1">The first tensor</param>
+        /// <param name="t2">The second tensor</param>
+        /// <returns></returns>
         public static Tensor Matmul(Tensor t1, Tensor t2)
         {
 
@@ -524,6 +693,13 @@ namespace NeuralNet.Autodiff
             return new Tensor(data, requiresGradient, dependencies);
         }
 
+        /// <summary>
+        /// Slice the data of a 2D tensor. If the tensor requires gradient computation,
+        /// it adds the current tensor as a dependency.
+        /// </summary>
+        /// <param name="start">Start index</param>
+        /// <param name="end">End index</param>
+        /// <returns>A subpart of the original tensor</returns>
         public Tensor Slice2DTensor(int start, int end)
         {
             NDimArray data = Data.Slice2DArray(start, end);
@@ -537,7 +713,7 @@ namespace NeuralNet.Autodiff
                     Copy the gradients of the keeped dims into the new gradient array, but set every
                     gradient that have not been keeped to 0
                     */
- 
+
                     NDimArray newGrad = NDimArray.Zeros_like(this.Data);
 
                     //Copy the gradient
@@ -545,23 +721,29 @@ namespace NeuralNet.Autodiff
                     {
                         end = Shape[0];
                     }
-                    for(int i = 0;start<end;i++){
-                        for(int j =0;j<incomingGrad.Shape[1];j++){
-                            newGrad[start,j] = incomingGrad[i,j];
+                    for (int i = 0; start < end; i++)
+                    {
+                        for (int j = 0; j < incomingGrad.Shape[1]; j++)
+                        {
+                            newGrad[start, j] = incomingGrad[i, j];
                         }
                         start++;
                     }
-       
+
 
                     return newGrad;
                 }
-                dependencies = new TensorDependency[] { new TensorDependency(this, GradientFunction) };
+                dependencies = new TensorDependency[] { new TensorDependency(new Tensor(this.Data,true), GradientFunction) };
             }
 
             return new Tensor(data, RequiresGrad, dependencies);
         }
 
-        // Get the indexes of the max values along the rows of a 2D array
+        /// <summary>
+        /// Return the indexes of the max values along the rows of a 2D array. 
+        /// This method should not be there, it's temporary since the max function is not implemented.
+        /// </summary>
+        /// <returns></returns>
         public int[] GetPredictionsIndexes()
         {
             if (Ndim != 2)

@@ -2,32 +2,40 @@ using System;
 
 namespace NeuralNet.Autodiff
 {
+    /// <summary>
+    /// This class represents the dependence of a tensor. This is used to keep track of the tensor's dependency.
+    /// For example, if a tensor is made up by the sum of 2 other tensor, this tensor will have 2 TensorDependency object
+    /// in it's list of dependency. The gradient function used to compute the gradient of the tensor, with respect to the 
+    /// dependencies.
+    /// </summary>
     public class TensorDependency
     {
-        /**
-         * This class is used to keep track of the tensor's dependency. For example, if a tensor is made up by the sum of
-         * two other tensor, this tensor will have two TensorDependency object in it's list of dependency. We also need to 
-         * save the gradient function of this tensor. If we have the gradient of a loss function iwth respect of their sum,
-         * we can use the grad_fn functions to get the gradient of the loss function, with respect of each of the original input tensors.
-         */
 
-        // The tensor dependence
+        /// <summary>
+        /// The tensor dependence
+        /// </summary>
+        /// <value></value>
         public Tensor TensorDep { get; set; }
 
-        // The gradient function, takes a NDimArray as input, and ouput a NDimArray
+ 
+        /// <summary>
+        /// The gradient function, takes a NDimArray as input, and ouput a NDimArray
+        /// The gradient function is used to compute the gradient of the tensor that depends on TensorDep,
+        /// with respect to the dependencies.
+        /// </summary>
+        /// <value></value>
         public Func<NDimArray, NDimArray> GradFunction { get; set; }
 
+        /// <summary>
+        /// Constructor used to create a TensorDependency
+        /// </summary>
+        /// <param name="tensor">The tensor dependence</param>
+        /// <param name="gradF">The grad function</param>
         public TensorDependency(Tensor tensor, Func<NDimArray, NDimArray> gradF)
         {
             TensorDep = tensor;
             GradFunction = gradF;
         }
-
-
-
-
-
-
 
     }
 }
