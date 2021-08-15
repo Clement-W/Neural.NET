@@ -1,8 +1,18 @@
 using NeuralNet.Autodiff;
 namespace NeuralNet.Functions
 {
+
+    /// <summary>
+    /// Leaky Relu activation function
+    /// </summary>
     public class LeakyRelu : IBlock
     {
+        /// <summary>
+        /// Forward an input tensor into the Leaky Relu function 
+        /// (applies the element-wise leaky relu function to the input tensor)
+        /// </summary>
+        /// <param name="inputs">The input tensor</param>
+        /// <returns>The output tensor</returns>
         public Tensor Forward(Tensor t){
             NDimArray data = NDimArray.LeakyRelu(t.Data);
             TensorDependency[] dependencies = null;

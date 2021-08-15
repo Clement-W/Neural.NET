@@ -153,7 +153,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Todo list
 
-- [ ] Add documentation
 - [ ] Add softmax
 - [ ] Add multi class classification
 - [ ] Add momentum for sgd

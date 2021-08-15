@@ -4,19 +4,47 @@ using NeuralNet.Loss;
 using System;
 namespace NeuralNet
 {
+    /// <summary>
+    /// This class represents a model, a neural network that can be trained
+    /// </summary>
     public abstract class Model : Module
     {
+        /// <summary>
+        /// The optimizer used to train the network
+        /// </summary>
+        /// <value></value>
         public Optimizer Optimizer { get; private set; } = null;
+
+        /// <summary>
+        /// THe loss function used to train the network
+        /// </summary>
+        /// <value></value>
         public ILoss LossFunction { get; private set; } = null;
 
+        /// <summary>
+        /// Predict the output of the neural network by feeding it with the inputs tensor
+        /// </summary>
+        /// <param name="inputs">Input tensor</param>
+        /// <returns>Output of the neural network</returns>
         public abstract Tensor Predict(Tensor inputs);
 
+        /// <summary>
+        /// Compile the model with the opotimizer and the loss.
+        /// </summary>
+        /// <param name="optimizer"></param>
+        /// <param name="loss"></param>
         public void Compile(Optimizer optimizer, ILoss loss)
         {
             Optimizer = optimizer;
             LossFunction = loss;
         }
 
+        /// <summary>
+        /// Train the neural network
+        /// </summary>
+        /// <param name="trainData">Traning set of the dataset</param>
+        /// <param name="nbEpochs">Number of epochs</param>
+        /// <param name="verbose">Boolean to print informations during the training phase</param>
         public void Train(DataLoader trainData, int nbEpochs, bool verbose)
         {
             if (Optimizer == null || LossFunction == null)
@@ -83,6 +111,13 @@ namespace NeuralNet
         }
 
 
+        /// <summary>
+        /// Test the neural network
+        /// </summary>
+        /// <param name="predictions">Predicted values by the neural network</param>
+        /// <param name="XData">Input actual data</param>
+        /// <param name="YData">Output actual data</param>
+        /// <returns></returns>
         private double Test(Tensor predictions, Tensor XData, Tensor YData)
         {
             int[] predictedIndexes = predictions.GetPredictionsIndexes();
@@ -101,6 +136,10 @@ namespace NeuralNet
             return accuracy;
         }
 
+        /// <summary>
+        /// Evaluate the neural network on test dataset
+        /// </summary>
+        /// <param name="testData">The test set of the data</param>
         public void Evaluate(DataLoader testData)
         {
             Console.WriteLine("\nEvaluation : ");

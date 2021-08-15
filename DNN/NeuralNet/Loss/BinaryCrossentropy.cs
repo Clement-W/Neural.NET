@@ -2,8 +2,18 @@ using NeuralNet.Autodiff;
 using System;
 namespace NeuralNet.Loss
 {
+    /// <summary>
+    /// Binary Crossentropy loss function
+    /// </summary>
     public class BinaryCrossentropy : ILoss
     {
+
+        /// <summary>
+        /// Compute the binary crossentropy loss thanks to the predicted values and the target values
+        /// </summary>
+        /// <param name="predicted">The predicted values</param>
+        /// <param name="target">The actual values</param>
+        /// <returns>The loss</returns>
         public Tensor ComputeLoss(Tensor predicted, Tensor target)
         {
             // We don't need to give a gradient function, we are only using basics operations

@@ -4,11 +4,18 @@ using System.Collections.Generic;
 using NeuralNet.Autodiff;
 namespace NeuralNet
 {
-    // A module represents a collection of Parameters
+
+    /// <summary>
+    /// A module represents a collection of Parameters
+    /// </summary>
     public class Module
     {
 
-        // Return every properties of type Parameter or Module
+        /// <summary>
+        /// Return every parameters of the module
+        /// It iterates through the properties of the module and return the Parameter ones
+        /// </summary>
+        /// <returns>A Ienumerable of parameterr</returns>
         public IEnumerable<Parameter> Parameters()
         { //TODO: This method is not efficient at all. Would it be better with an array instead of using Reflection ?
 
@@ -60,7 +67,9 @@ namespace NeuralNet
         }
 
 
-        // Set the gradient of every parameters to 0
+        /// <summary>
+        /// Set the gradient of every parameters to 0
+        /// </summary>
         public void ZeroGrad()
         {
             foreach (Parameter param in this.Parameters())
