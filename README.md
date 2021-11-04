@@ -6,7 +6,7 @@
 
 ## About The Project
 
-What's the best way to fully understand something ? Doing it from sratch ! 
+What's the best way to fully understand something ? Doing it from scratch ! 
 That's why I've implemented a little neural net library with automatic differentiation, inspired by Pytorch and Keras. This project was conducted for educational purposes and is not finished yet. Performances cannot compete with other c# neural network library like [NeuralNetwork.NET](https://github.com/Sergio0694/NeuralNetwork.NET). 
 
 Great ressources that helped me a lot to carry out this project : 
